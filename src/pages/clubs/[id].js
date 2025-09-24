@@ -5,21 +5,41 @@ import Image from "next/image"
 import Layout from "../../components/layout/Layout"
 import Button from "../../components/Button"
 import Card from "../../components/Card"
-import { events } from "../../lib/data"
-import { formatDate, formatTime } from "../../lib/utils"
+import { clubs } from "../../lib/data"
 
-export default function EventDetail() {
+// Extended clubs data
+const extendedClubs = [
+  ...clubs,
+  {
+    id: 4,
+    name: "Sport Club",
+    category: "SPORT",
+    description:
+      "Câu lạc bộ thể thao đa dạng với các môn thể thao khác nhau. Tổ chức các giải đấu và hoạt động rèn luyện sức khỏe.",
+    members: 18,
+    events: 6,
+    successRate: "94%",
+    image: "/martial-arts-vovinam-sport.jpg",
+    fullDescription:
+      "Sport Club là nơi tập hợp những sinh viên yêu thích thể thao và muốn duy trì lối sống khỏe mạnh. Chúng tôi tổ chức các hoạt động đa dạng từ bóng đá, bóng rổ, cầu lông đến các môn võ thuật truyền thống.",
+    activities: ["Bóng đá", "Bóng rổ", "Cầu lông", "Võ thuật", "Chạy bộ"],
+    meetingTime: "Thứ 3, Thứ 5 - 17:00-19:00",
+    location: "Sân thể thao trường",
+  },
+]
+
+export default function ClubDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const event = events.find((e) => e.id === Number.parseInt(id))
+  const club = extendedClubs.find((c) => c.id === Number.parseInt(id))
 
-  if (!event) {
+  if (!club) {
     return (
-      <Layout title="Sự kiện không tồn tại - UniVibe">
+      <Layout title="Câu lạc bộ không tồn tại - UniVibe">
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-600 mb-4">Sự kiện không tồn tại</h1>
-          <Button onClick={() => router.push("/events")}>Quay lại danh sách sự kiện</Button>
+          <h1 className="text-2xl font-bold text-gray-600 mb-4">Câu lạc bộ không tồn tại</h1>
+          <Button onClick={() => router.push("/clubs")}>Quay lại danh sách câu lạc bộ</Button>
         </div>
       </Layout>
     )
@@ -30,13 +50,14 @@ export default function EventDetail() {
     SPORT: "bg-green-500",
     ART: "bg-purple-500",
     ACADEMIC: "bg-orange-500",
+    CULTURE: "bg-teal-500",
   }
 
   return (
-    <Layout title={`${event.title} - UniVibe`}>
+    <Layout title={`${club.name} - UniVibe`}>
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden">
-        <Image src={event.image || "/placeholder.svg"} alt={event.title} fill className="object-cover" />
+        <Image src={club.image || "/placeholder.svg"} alt={club.name} fill className="object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center">
           <div className="container mx-auto px-4 text-white">
@@ -44,70 +65,66 @@ export default function EventDetail() {
               <div className="flex items-center gap-4 mb-4">
                 <span
                   className={`${
-                    categoryColors[event.category] || "bg-gray-500"
+                    categoryColors[club.category] || "bg-gray-500"
                   } text-white px-4 py-2 rounded-full text-sm font-medium`}
                 >
-                  {event.category}
+                  {club.category}
                 </span>
                 <span className="bg-white/20 px-4 py-2 rounded-full text-sm">
-                  {formatDate(event.date)} - {formatTime(event.time)}
+                  {club.members} thành viên • {club.events} sự kiện
                 </span>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{event.title}</h1>
-              <p className="text-xl text-white/90">{event.description}</p>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{club.name}</h1>
+              <p className="text-xl text-white/90">{club.description}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Event Details */}
+      {/* Club Details */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Thông tin chi tiết</h2>
+                <h2 className="text-2xl font-bold mb-6">Giới thiệu về câu lạc bộ</h2>
                 <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed mb-6">{event.description}</p>
+                  <p className="text-gray-700 leading-relaxed mb-6">{club.fullDescription || club.description}</p>
                   <p className="text-gray-700 leading-relaxed">
-                    Đây là một cơ hội tuyệt vời để bạn có thể học hỏi, giao lưu và phát triển kỹ năng cùng với các bạn
-                    sinh viên khác trong trường. Sự kiện được tổ chức bởi {event.organizer} với sự tham gia của các
-                    chuyên gia và giảng viên có kinh nghiệm.
+                    Tham gia câu lạc bộ để có cơ hội học hỏi, giao lưu và phát triển kỹ năng cùng với các bạn sinh viên
+                    khác trong trường. Chúng tôi luôn chào đón các thành viên mới với tinh thần cởi mở và nhiệt tình.
                   </p>
                 </div>
               </Card>
 
+              {club.activities && (
+                <Card className="p-8">
+                  <h2 className="text-2xl font-bold mb-6">Hoạt động chính</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {club.activities.map((activity, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4 text-center">
+                        <span className="font-medium text-gray-800">{activity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
               <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Lịch trình sự kiện</h2>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Đăng ký và check-in</h3>
-                      <p className="text-gray-600 text-sm">08:00 - 08:30</p>
-                    </div>
+                <h2 className="text-2xl font-bold mb-6">Thành tích nổi bật</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center p-6 bg-red-50 rounded-lg">
+                    <div className="text-3xl font-bold text-red-500 mb-2">{club.members}</div>
+                    <div className="text-gray-600">Thành viên tích cực</div>
                   </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Khai mạc và giới thiệu</h3>
-                      <p className="text-gray-600 text-sm">08:30 - 09:00</p>
-                    </div>
+                  <div className="text-center p-6 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-500 mb-2">{club.events}</div>
+                    <div className="text-gray-600">Sự kiện đã tổ chức</div>
                   </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Hoạt động chính</h3>
-                      <p className="text-gray-600 text-sm">09:00 - 16:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Tổng kết và trao giải</h3>
-                      <p className="text-gray-600 text-sm">16:00 - 17:00</p>
-                    </div>
+                  <div className="text-center p-6 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-500 mb-2">{club.successRate}</div>
+                    <div className="text-gray-600">Tỷ lệ thành công</div>
                   </div>
                 </div>
               </Card>
@@ -116,7 +133,7 @@ export default function EventDetail() {
             {/* Sidebar */}
             <div className="space-y-6">
               <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Thông tin sự kiện</h3>
+                <h3 className="text-xl font-bold mb-4">Thông tin câu lạc bộ</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,10 +145,8 @@ export default function EventDetail() {
                       />
                     </svg>
                     <div>
-                      <p className="font-medium">Ngày giờ</p>
-                      <p className="text-gray-600 text-sm">
-                        {formatDate(event.date)} - {formatTime(event.time)}
-                      </p>
+                      <p className="font-medium">Thời gian họp</p>
+                      <p className="text-gray-600 text-sm">{club.meetingTime || "Linh hoạt theo lịch"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -151,7 +166,7 @@ export default function EventDetail() {
                     </svg>
                     <div>
                       <p className="font-medium">Địa điểm</p>
-                      <p className="text-gray-600 text-sm">{event.location}</p>
+                      <p className="text-gray-600 text-sm">{club.location || "Phòng họp CLB"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -164,31 +179,15 @@ export default function EventDetail() {
                       />
                     </svg>
                     <div>
-                      <p className="font-medium">Số lượng tham gia</p>
-                      <p className="text-gray-600 text-sm">
-                        {event.participants}/{event.maxParticipants} người
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-medium">Tổ chức bởi</p>
-                      <p className="text-gray-600 text-sm">{event.organizer}</p>
+                      <p className="font-medium">Thành viên</p>
+                      <p className="text-gray-600 text-sm">{club.members} người</p>
                     </div>
                   </div>
                 </div>
               </Card>
 
               <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Đăng ký tham gia</h3>
+                <h3 className="text-xl font-bold mb-4">Tham gia câu lạc bộ</h3>
                 <div className="space-y-4">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -197,25 +196,27 @@ export default function EventDetail() {
                       </svg>
                       <span className="font-medium text-green-800">Miễn phí tham gia</span>
                     </div>
-                    <p className="text-green-700 text-sm">Sự kiện hoàn toàn miễn phí cho tất cả sinh viên</p>
+                    <p className="text-green-700 text-sm">Hoàn toàn miễn phí cho tất cả sinh viên</p>
                   </div>
                   <Button className="w-full" size="lg">
-                    Đăng ký ngay
+                    Tham gia ngay
                   </Button>
                   <Button variant="outline" className="w-full bg-transparent">
-                    Chia sẻ sự kiện
+                    Liên hệ CLB
                   </Button>
                 </div>
               </Card>
 
               <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Tags</h3>
+                <h3 className="text-xl font-bold mb-4">Danh mục</h3>
                 <div className="flex flex-wrap gap-2">
-                  {event.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                      {tag}
-                    </span>
-                  ))}
+                  <span
+                    className={`${
+                      categoryColors[club.category] || "bg-gray-500"
+                    } text-white px-3 py-1 rounded-full text-sm`}
+                  >
+                    {club.category}
+                  </span>
                 </div>
               </Card>
             </div>

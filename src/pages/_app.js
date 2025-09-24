@@ -1,17 +1,10 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import NavBar from "@/components/NavBar";
-import "../styles.css";
+import "../styles/globals.css"
+import { AuthProvider } from "@/contexts/AuthContext"
 
 export default function App({ Component, pageProps }) {
   return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <NavBar />
-        <main className="flex-1">
-          <Component {...pageProps} />
-        </main>
-        <Footer />
-      </div>
-  );
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  )
 }
