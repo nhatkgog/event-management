@@ -104,38 +104,38 @@ export default function NotificationsPage({ initialUser, initialNotifications })
   );
 }
 
-export async function getServerSideProps(context) {
-  try {
-    // Check auth server-side
-    const token = context.req.cookies.token;
-    if (!token) {
-      return {
-        props: {
-          initialUser: null,
-          initialNotifications: []
-        }
-      };
-    }
-    // In a real app, verify JWT token
-    const user = { id: 1, email: 'user@example.com', role: 'user' }; // Mock
-
-    // Import notifications lib directly
-    const { listNotifications } = await import("@/lib/notifications");
-    const notifications = listNotifications(user.id);
-
-    return {
-      props: {
-        initialUser: user,
-        initialNotifications: notifications
-      }
-    };
-  } catch (error) {
-    console.error("SSR error:", error);
-    return {
-      props: {
-        initialUser: null,
-        initialNotifications: []
-      }
-    };
-  }
-}
+// export async function getServerSideProps(context) {
+//   try {
+//     // Check auth server-side
+//     const token = context.req.cookies.token;
+//     if (!token) {
+//       return {
+//         props: {
+//           initialUser: null,
+//           initialNotifications: []
+//         }
+//       };
+//     }
+//     // In a real app, verify JWT token
+//     const user = { id: 1, email: 'user@example.com', role: 'user' }; // Mock
+//
+//     // Import notifications lib directly
+//     const { listNotifications } = await import("../../lib/notifications");
+//     const notifications = listNotifications(user.id);
+//
+//     return {
+//       props: {
+//         initialUser: user,
+//         initialNotifications: notifications
+//       }
+//     };
+//   } catch (error) {
+//     console.error("SSR error:", error);
+//     return {
+//       props: {
+//         initialUser: null,
+//         initialNotifications: []
+//       }
+//     };
+//   }
+// }
