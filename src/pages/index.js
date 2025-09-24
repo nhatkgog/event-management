@@ -1,83 +1,57 @@
-import Link from "next/link";
+import Layout from "../components/layout/Layout"
+import HeroSection from "../components/HeroSection"
+import EventGrid from "../components/EventGrid"
+import FeaturedEventCard from "../components/FeaturedEventCard"
+import TestimonialSection from "../components/TestimonialSection"
+import FAQSection from "../components/FAQSection"
+import { events, testimonials } from "@/lib/data"
 
 export default function Home() {
+  const featuredEvent = events[0] // First event as featured
+  const recentEvents = events.slice(0, 4) // Show first 4 events
+  const summerEvent = {
+    id: "summer",
+    title: "FPTU SUMMER JAMBOREE 2025: PROMPT MỘT MÙA HÈ SÔING NỔI",
+    description:
+      "Những giây phút cùng thăng và hỗi hợp sáng sủa ra tiến đầu trường học thuật, sân chơi nghiên cứu khoa học tầm nhất mành dành cho sinh viên Trường F.",
+    date: "26/07/2025",
+  }
+
   return (
-    <div className="em-home">
-      {/* Hero Section */}
-      <section className="em-hero">
-        <div className="em-container">
-          <div className="em-hero-content">
-            <h1 className="em-hero-title">
-              Manage Your Events
-              <span className="em-hero-accent">Effortlessly</span>
-            </h1>
-            <p className="em-hero-description">
-              Create, organize, and track events with our comprehensive event management platform.
-              From small gatherings to large conferences, we've got you covered.
-            </p>
-            <div className="em-hero-actions">
-              <Link href="/events" className="em-btn em-btn-primary">
-                Browse Events
-              </Link>
-              <Link href="/events/create" className="em-btn em-btn-secondary">
-                Create Event
-              </Link>
-            </div>
+    <Layout>
+      <HeroSection featuredEvent={featuredEvent} />
+      <EventGrid events={recentEvents} />
+
+      {/* Featured Summer Event */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">CÓ GÌ HOT Ở SỰ KIỆN VỪA QUA?</h2>
+          <FeaturedEventCard event={summerEvent} />
+
+          {/* Event Categories */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            {[
+              { name: "INTRODUCTION", color: "bg-blue-500" },
+              { name: "JAM TECH PHÁT TRIỂN NĂNG", color: "bg-purple-500" },
+              { name: "JAM TECH KHỞI NGHIỆP SÁNG TẠO", color: "bg-green-500" },
+              { name: "JAM TECH ĐỊNH HỚI THỂ LỰC", color: "bg-orange-500" },
+            ].map((category, index) => (
+              <div key={index} className={`${category.color} text-white p-6 rounded-lg text-center`}>
+                <h3 className="font-bold text-sm">{category.name}</h3>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <button className="bg-red-500 text-white px-8 py-3 rounded-full hover:bg-red-600 transition-colors">
+              Xem điểm danh
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="em-features">
-        <div className="em-container">
-          <h2 className="em-section-title">Why Choose Our Platform?</h2>
-          <div className="em-features-grid">
-            <div className="em-feature-card">
-              <div className="em-feature-icon">📅</div>
-              <h3 className="em-feature-title">Easy Scheduling</h3>
-              <p className="em-feature-description">
-                Intuitive calendar interface for scheduling and managing events with ease.
-              </p>
-            </div>
-            <div className="em-feature-card">
-              <div className="em-feature-icon">👥</div>
-              <h3 className="em-feature-title">Attendee Management</h3>
-              <p className="em-feature-description">
-                Track registrations, send invitations, and manage attendee lists efficiently.
-              </p>
-            </div>
-            <div className="em-feature-card">
-              <div className="em-feature-icon">📊</div>
-              <h3 className="em-feature-title">Analytics & Reports</h3>
-              <p className="em-feature-description">
-                Get detailed insights and analytics about your events and attendee engagement.
-              </p>
-            </div>
-            <div className="em-feature-card">
-              <div className="em-feature-icon">🔔</div>
-              <h3 className="em-feature-title">Real-time Notifications</h3>
-              <p className="em-feature-description">
-                Stay updated with instant notifications for registrations and event updates.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="em-cta-section">
-        <div className="em-container">
-          <div className="em-cta-content">
-            <h2 className="em-cta-title">Ready to Get Started?</h2>
-            <p className="em-cta-description">
-              Join thousands of event organizers who trust our platform for their events.
-            </p>
-            <Link href="/events" className="em-btn em-btn-primary em-btn-large">
-              Start Managing Events
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+      <TestimonialSection testimonials={testimonials} />
+      <FAQSection />
+    </Layout>
+  )
 }
