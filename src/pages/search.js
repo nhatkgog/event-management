@@ -79,7 +79,8 @@ export default function SearchResults() {
   }
 
   return (
-    <Layout title={`Tìm kiếm: ${query} - UniVibe`}>
+    // <Layout title={`Tìm kiếm: ${query} - UniVibe`}>
+      <div>
       {/* Search Header */}
       <section className="bg-gray-100 py-8">
         <div className="container mx-auto px-4">
@@ -201,6 +202,7 @@ export default function SearchResults() {
           )}
         </div>
       </section>
-    </Layout>
+      </div>
+    // </Layout>
   )
 }
