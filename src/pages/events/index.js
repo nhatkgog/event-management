@@ -34,7 +34,8 @@ export default function Index() {
   }, [selectedCategory, searchQuery])
 
   return (
-    <Layout title="Sự kiện sinh viên - UniVibe">
+    // <Layout title="Sự kiện sinh viên - UniVibe">
+      <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-red-500 to-orange-400 text-white py-16">
         <div className="container mx-auto px-4 text-center">
@@ -96,6 +97,7 @@ export default function Index() {
           )}
         </div>
       </section>
-    </Layout>
+      </div>
+    // </Layout>
   )
 }
