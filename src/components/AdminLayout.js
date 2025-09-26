@@ -2,7 +2,7 @@
 
 import Head from "next/head"
 import Link from "next/link"
-import { useAuth } from "../contexts/AuthContext"
+// import { useAuth } from "../contexts/AuthContext"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
 
@@ -10,15 +10,15 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
   // const { user, isAuthenticated } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== "admin") {
-      router.push("/login")
-    }
-  }, [isAuthenticated, user, router])
-
-  if (!isAuthenticated || user?.role !== "admin") {
-    return null
-  }
+  // useEffect(() => {
+  //   if (!isAuthenticated || user?.role !== "admin") {
+  //     router.push("/login")
+  //   }
+  // }, [isAuthenticated, user, router])
+  //
+  // if (!isAuthenticated || user?.role !== "admin") {
+  //   return null
+  // }
 
   return (
     <>
