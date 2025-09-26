@@ -136,3 +136,5 @@ tmp/
 temp/
 
 /.git/
+
+/.clerk/

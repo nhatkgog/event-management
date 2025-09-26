@@ -18,7 +18,7 @@ export default function Home() {
   }
 
   return (
-    <Layout>
+      <div>
       <HeroSection featuredEvent={featuredEvent} />
       <EventGrid events={recentEvents} />
 
@@ -52,6 +52,6 @@ export default function Home() {
 
       <TestimonialSection testimonials={testimonials} />
       <FAQSection />
-    </Layout>
+    </div>
   )
 }

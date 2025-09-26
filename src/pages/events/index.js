@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Layout from "../components/layout/Layout"
-import EventCard from "../components/EventCard"
-import EventFilters from "../components/EventFilters"
-import { events, categories } from "../lib/data"
+import Layout from "../../components/layout/Layout"
+import EventCard from "../../components/EventCard"
+import EventFilters from "../../components/EventFilters"
+import { events, categories } from "../../lib/data"
 
-export default function Events() {
+export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -47,7 +47,7 @@ export default function Events() {
         </div>
       </section>
 
-      {/* Events Content */}
+      {/* Index Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <EventFilters
@@ -71,7 +71,7 @@ export default function Events() {
             </p>
           </div>
 
-          {/* Events Grid */}
+          {/* Index Grid */}
           {filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredEvents.map((event) => (

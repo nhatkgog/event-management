@@ -174,7 +174,7 @@ export default function SearchResults() {
             </div>
           ) : (
             <div className="space-y-12">
-              {/* Events Results */}
+              {/* Index Results */}
               {filteredResults.events.length > 0 && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Sự kiện ({filteredResults.events.length})</h2>
@@ -186,7 +186,7 @@ export default function SearchResults() {
                 </div>
               )}
 
-              {/* Clubs Results */}
+              {/* Index Results */}
               {filteredResults.clubs.length > 0 && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Câu lạc bộ ({filteredResults.clubs.length})</h2>
