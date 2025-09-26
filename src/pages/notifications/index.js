@@ -52,7 +52,7 @@ export default function NotificationsPage({ initialUser, initialNotifications })
     setError("");
     const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: loginEmail, password: loginPassword }) });
     const data = await res.json();
-    if (!res.ok) { setError(data.error || "Login failed"); return; }
+    if (!res.ok) { setError(data.error || "Signin failed"); return; }
     setUser(data.user);
     startStream();
     refresh();

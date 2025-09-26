@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Layout from "../components/layout/Layout"
-import ClubCard from "../components/ClubCard"
-import Button from "../components/Button"
+import Layout from "../../components/layout/Layout"
+import ClubCard from "../../components/ClubCard"
+import Button from "../../components/Button"
 import { clubs } from "@/lib/data"
 
 // Extended clubs data to match the design
@@ -86,7 +86,7 @@ const categories = [
   { id: "CULTURE", label: "Văn hóa", color: "bg-teal-500" },
 ]
 
-export default function Clubs() {
+export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -129,7 +129,7 @@ export default function Clubs() {
         </div>
       </section>
 
-      {/* Clubs Content */}
+      {/* Index Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Search and Filters */}
@@ -194,7 +194,7 @@ export default function Clubs() {
             </p>
           </div>
 
-          {/* Clubs Grid */}
+          {/* Index Grid */}
           {filteredClubs.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

@@ -7,7 +7,7 @@ import { useRouter } from "next/router"
 import { useEffect } from "react"
 
 export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
-  const { user, isAuthenticated } = useAuth()
+  // const { user, isAuthenticated } = useAuth()
   const router = useRouter()
 
   useEffect(() => {

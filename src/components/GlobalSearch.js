@@ -93,7 +93,7 @@ export default function GlobalSearch({ placeholder = "Tìm kiếm sự kiện" }
             {results.map((result) => (
               <Link
                 key={`${result.type}-${result.id}`}
-                href={result.type === "event" ? `/events/${result.id}` : `/clubs/${result.id}`}
+                href={result.type === "event" ? `/src/pages/events/index.js/${result.id}` : `/src/pages/clubs/index.js/${result.id}`}
                 onClick={handleResultClick}
                 className="block p-3 hover:bg-gray-50 rounded-lg transition-colors"
               >
