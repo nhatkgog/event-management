@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher, getAuth } from '@clerk/nextjs/server';
-import { NextResponse } from "next/server";
+import { getCurrentUserPrivateMetadata } from "./lib/auth-utils";
+import {NextResponse} from "next/server";
 
 // export function middleware(request) {
 //   // Check if user is authenticated for protected routes
@@ -17,21 +18,30 @@ import { NextResponse } from "next/server";
 //   return NextResponse.next()
 // }
 
-const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/clubs(.*)', '/events(.*)', '/api(.*)']);
+const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/clubs(.*)', '/events(.*)', '/forgot-password(.*)', '']);
 
-const isPublicRoute = createRouteMatcher(['/login(.*)', '/', 'forgot-password(.*)'])
+const isPublicRoutes = createRouteMatcher(['/login(.*)', '/'])
+
+const isPublicRoute = createRouteMatcher(['/login(.*)', '/forgot-password(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
-    if (isProtectedRoute(req)) await auth.protect();
+    const { isAuthenticated, redirectToSignIn, isSignedIn } = await auth()
+
+
+    if (isProtectedRoute(req) && process.env.NODE_ENV !== 'development') await auth.protect();
 
     // const { isAuthenticated, redirectToSignIn } = await auth()
     // if (!isAuthenticated && isProtectedRoute(req)) {
     //     // Add custom logic to run before redirecting
     //     return redirectToSignIn()
     // }
-    // if (!isPublicRoute(req)) {
-    //     await auth.protect()
-    // }
+
+    if (!isPublicRoutes(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
+        await auth.protect();
+    }
+    if (isPublicRoute(req) && isAuthenticated && process.env.NODE_ENV !== 'development') {
+        return NextResponse.redirect(new URL("/", req.url));
+    }
 });
 
 export const config = {
