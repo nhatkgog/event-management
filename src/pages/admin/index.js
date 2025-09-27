@@ -24,7 +24,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout title="Admin Dashboard - UniVibe">
+    // <AdminLayout title="Admin Dashboard - UniVibe">
+      <div>
       <SignedIn>
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-red-500 to-orange-400 text-white py-16">
@@ -165,6 +166,7 @@ export default function AdminDashboard() {
             <p>You must be signed in to view the admin dashboard.</p>
         </div>
       </SignedOut>
-    </AdminLayout>
+      </div>
+    // </AdminLayout>
   )
 }

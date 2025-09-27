@@ -63,12 +63,12 @@ export default function SignInPage() {
                                 Chào mừng bạn trở lại!
                             </h1>
                             <div className="flex justify-end mb-6">
-                                <Link
-                                    href="/register"
-                                    className="text-red-500 hover:text-red-600 text-sm font-medium"
-                                >
-                                    Đăng nhập quản trị viên
-                                </Link>
+                                {/*<Link*/}
+                                {/*    href="/register"*/}
+                                {/*    className="text-red-500 hover:text-red-600 text-sm font-medium"*/}
+                                {/*>*/}
+                                {/*    Đăng nhập quản trị viên*/}
+                                {/*</Link>*/}
                             </div>
                         </div>
 
@@ -116,22 +116,22 @@ export default function SignInPage() {
 
                         <div className="space-y-4 mt-8">
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-600">Bạn chưa có tài khoản?</span>
-                                <Link
-                                    href="/register"
-                                    className="text-red-500 hover:text-red-600 font-medium"
-                                >
-                                    Đăng ký tài khoản
-                                </Link>
+                                {/*<span className="text-gray-600">Bạn chưa có tài khoản?</span>*/}
+                                {/*<Link*/}
+                                {/*    href="/register"*/}
+                                {/*    className="text-red-500 hover:text-red-600 font-medium"*/}
+                                {/*>*/}
+                                {/*    Đăng ký tài khoản*/}
+                                {/*</Link>*/}
                             </div>
 
                             <div className="text-center">
-                                <Link
-                                    href="/login/forgot-password"
-                                    className="text-red-500 hover:text-red-600 text-sm font-medium underline"
-                                >
-                                    Quên mật khẩu hoặc tên tài khoản?
-                                </Link>
+                                {/*<Link*/}
+                                {/*    href="/login/forgot-password"*/}
+                                {/*    className="text-red-500 hover:text-red-600 text-sm font-medium underline"*/}
+                                {/*>*/}
+                                {/*    Quên mật khẩu hoặc tên tài khoản?*/}
+                                {/*</Link>*/}
                             </div>
 
                             <div className="text-center text-gray-600 text-sm mt-8 mb-4">
