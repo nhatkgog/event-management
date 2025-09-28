@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useAuth } from "../../contexts/AuthContext"
 import {
     SignInButton,
     SignUpButton,

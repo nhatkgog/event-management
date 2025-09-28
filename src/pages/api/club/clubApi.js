@@ -1,6 +1,8 @@
 import dbConnect, { Club } from '../../../lib/db';
+import {internalAccess} from "@/utils/internalAccess";
+import {withRateLimit} from "@/lib/rate-limit";
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { method } = req;
   const { id } = req.query;
 
@@ -67,3 +69,23 @@ export default async function handler(req, res) {
       return res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
+
+export default withRateLimit({ max: 5 })( internalAccess(handler) );
+
+// import rateLimit from '../../../lib/rate-limit';
+//
+// const limiter = rateLimit({ interval: 60_000, max: 10 });
+//
+// export default async function handler(req, res) {
+//     // identify client by IP
+//     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+//     try {
+//         await limiter.check(ip);
+//     } catch (err) {
+//         res.setHeader('Retry-After', '60'); // seconds
+//         return res.status(429).json({ error: err.message });
+//     }
+//
+//     // your normal API logic
+//     res.status(200).json({ message: 'Success' });
+// }

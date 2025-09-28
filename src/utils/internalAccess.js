@@ -1,4 +1,4 @@
-export const withInternalAccess = (handler) => async (req, res) => {
+export const internalAccess = (handler) => async (req, res) => {
     // Check if the application is running in the development environment
     if (process.env.NODE_ENV === 'development') {
         // In development, simply execute the original handler and return

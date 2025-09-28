@@ -36,7 +36,7 @@ export default function SignInPage() {
             if (result.status === "complete") {
                 // Activate the session and redirect
                 await setActive({ session: result.createdSessionId });
-                router.push("/");
+                await router.push("/");
             }
         } catch (err) {
             setError(err.errors?.[0]?.message || "Đăng nhập thất bại");
