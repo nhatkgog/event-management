@@ -1,24 +1,49 @@
-"use client"
+"use client";
 
-import Head from "next/head"
-import Link from "next/link"
-// import { useAuth } from "../contexts/AuthContext"
-import { useRouter } from "next/router"
-import { useEffect } from "react"
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { SignedIn, UserButton } from "@clerk/nextjs";
+import { useState } from "react";
+import {
+  Calendar,
+  Users,
+  ClipboardCheck,
+  BarChart3,
+  Shield,
+} from "lucide-react"; // icons
 
 export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
-  // const { user, isAuthenticated } = useAuth()
-  const router = useRouter()
+  const router = useRouter();
+  const [collapsed, setCollapsed] = useState(false);
 
-  // useEffect(() => {
-  //   if (!isAuthenticated || user?.role !== "admin") {
-  //     router.push("/login")
-  //   }
-  // }, [isAuthenticated, user, router])
-  //
-  // if (!isAuthenticated || user?.role !== "admin") {
-  //   return null
-  // }
+  const menuItems = [
+    {
+      href: "/admin",
+      label: "Thống kê",
+      icon: <BarChart3 className="w-6 h-6" />,
+    },
+    {
+      href: "/admin/events",
+      label: "Sự kiện",
+      icon: <Calendar className="w-6 h-6" />,
+    },
+    {
+      href: "/admin/clubs",
+      label: "Câu lạc bộ",
+      icon: <Users className="w-6 h-6" />,
+    },
+    {
+      href: "/admin/attendance",
+      label: "Điểm danh",
+      icon: <ClipboardCheck className="w-6 h-6" />,
+    },
+    {
+      href: "/admin/users",
+      label: "Quản lý người dùng",
+      icon: <Shield className="w-6 h-6" />,
+    },
+  ];
 
   return (
     <>
@@ -28,68 +53,81 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-red-500 text-white">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              <Link href="/admin" className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <span className="text-red-500 font-bold text-xl">U</span>
-                </div>
-              </Link>
 
-              <nav className="hidden md:flex items-center space-x-8">
-                <Link href="/events" className="hover:text-red-200 transition-colors">
-                  Sự kiện
-                </Link>
-                <Link href="/clubs" className="hover:text-red-200 transition-colors">
-                  Điểm danh
-                </Link>
-                <Link href="/admin" className="hover:text-red-200 transition-colors">
-                  Thông kê
-                </Link>
-                <Link href="/admin" className="hover:text-red-200 transition-colors">
-                  Quản lí
-                </Link>
-              </nav>
-
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Tìm kiếm sự kiện"
-                    className="bg-white text-gray-900 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-red-300"
-                  />
-                  <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-              </div>
+      <div className="min-h-screen flex">
+        {/* Sidebar */}
+        <aside
+          className={`${
+            collapsed ? "w-20" : "w-64"
+          } bg-gradient-to-b from-orange-500 to-red-600 text-white flex flex-col fixed inset-y-0 transition-all duration-300`}
+        >
+          {/* Logo */}
+          <div
+            className="h-16 flex items-center justify-center border-b border-white/20 px-4 cursor-pointer"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="w-12 h-12 rounded-full bg-white p-1"
+              />
+              {!collapsed && (
+                <span className="text-lg font-bold tracking-wide whitespace-nowrap">
+                  UniVibe Admin
+                </span>
+              )}
             </div>
           </div>
-        </header>
 
-        <main>{children}</main>
+          {/* Menu */}
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {menuItems.map((item) => {
+              const active =
+                router.pathname === item.href ||
+                (item.href !== "/admin" &&
+                  router.pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  title={collapsed ? item.label : undefined} // hiện tooltip khi thu nhỏ
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+                    active
+                      ? "bg-white text-red-600 font-semibold"
+                      : "hover:bg-white/20"
+                  }`}
+                >
+                  {item.icon}
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* User Button */}
+          <div className="p-4 border-t border-white/20 flex items-center justify-center">
+            <SignedIn>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-10 h-10",
+                  },
+                }}
+              />
+            </SignedIn>
+          </div>
+        </aside>
+
+        {/* Content */}
+        <main
+          className={`flex-1 transition-all duration-300 ${
+            collapsed ? "ml-20" : "ml-64"
+          } p-6 overflow-y-auto`}
+        >
+          {children}
+        </main>
       </div>
     </>
-  )
+  );
 }

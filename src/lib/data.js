@@ -199,3 +199,14 @@ export const categories = [
   { id: "ACADEMIC", label: "Học thuật", color: "bg-orange-500" },
   { id: "CULTURE", label: "Văn hóa", color: "bg-teal-500" },
 ]
+
+export const schedules = [
+  { id: 1, eventId: 1, title: "Đăng ký và check-in", time: "08:00 - 08:30", order: 1 },
+  { id: 2, eventId: 1, title: "Khai mạc và giới thiệu", time: "08:30 - 09:00", order: 2 },
+  { id: 3, eventId: 1, title: "Hoạt động chính", time: "09:00 - 16:00", order: 3 },
+  { id: 4, eventId: 1, title: "Tổng kết và trao giải", time: "16:00 - 17:00", order: 4 },
+
+  { id: 5, eventId: 2, title: "Khởi động Hackathon", time: "09:00 - 09:30", order: 1 },
+  { id: 6, eventId: 2, title: "Coding marathon", time: "09:30 - 18:00", order: 2 },
+  { id: 7, eventId: 2, title: "Pitching & Trao giải", time: "18:00 - 20:00", order: 3 },
+];
