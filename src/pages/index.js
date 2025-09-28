@@ -11,7 +11,7 @@ export default function Home() {
   const recentEvents = events.slice(0, 4) // Show first 4 events
   const summerEvent = {
     id: "summer",
-    title: "FPTU SUMMER JAMBOREE 2025: PROMPT MỘT MÙA HÈ SÔING NỔI",
+    title: "FPTU SUMMER JAMBOREE 2025: PROMPT MỘT MÙA HÈ SÔI NỔI",
     description:
       "Những giây phút cùng thăng và hỗi hợp sáng sủa ra tiến đầu trường học thuật, sân chơi nghiên cứu khoa học tầm nhất mành dành cho sinh viên Trường F.",
     date: "26/07/2025",

@@ -11,7 +11,7 @@ export default function Layout({ children, title = "UniVibe" }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <main>{children}</main>
         <Footer />

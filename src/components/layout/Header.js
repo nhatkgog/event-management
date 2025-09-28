@@ -20,23 +20,23 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <span className="text-red-500 font-bold text-xl">U</span>
-            </div>
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full" />
           </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="hover:text-red-200 transition-colors">
+              Trang chủ
+            </Link>
             <Link href="/events" className="hover:text-red-200 transition-colors">
               Sự kiện
             </Link>
-            <Link href="/clubs" className="hover:text-red-200 transition-colors">
+            {/* <Link href="/clubs" className="hover:text-red-200 transition-colors">
               Điểm danh
-            </Link>
-              <SignedOut>
+            </Link> */}
+              {/* <SignedOut>
                   <SignInButton />
-                  {/*<SignUpButton />*/}
-              </SignedOut>
+              </SignedOut> */}
             {/*{isAuthenticated && user?.role === "admin" && (*/}
             {/*  <>*/}
             {/*    <Link href="/admin" className="hover:text-red-200 transition-colors">*/}
@@ -52,6 +52,10 @@ export default function Header() {
           {/* Search and User */}
           <div className="flex items-center space-x-4">
             <GlobalSearch />
+            <SignedOut>
+              <SignInButton />
+                  {/*<SignUpButton />*/}
+            </SignedOut>
 
             {/*{isAuthenticated ? (*/}
             {/*  <div className="relative group">*/}
