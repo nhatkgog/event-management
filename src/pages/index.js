@@ -1,4 +1,5 @@
-import Layout from "../components/layout/Layout"
+"use client"
+import { useEffect, useState } from "react"
 import HeroSection from "../components/HeroSection"
 import EventGrid from "../components/EventGrid"
 import FeaturedEventCard from "../components/FeaturedEventCard"
@@ -7,8 +8,18 @@ import FAQSection from "../components/FAQSection"
 import { events, testimonials } from "@/lib/data"
 
 export default function Home() {
-  const featuredEvent = events[0] // First event as featured
-  const recentEvents = events.slice(0, 4) // Show first 4 events
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % events.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const featuredEvent = events[currentIndex] 
+  const recentEvents = events.slice(0, 4)
+
   const summerEvent = {
     id: "summer",
     title: "FPTU SUMMER JAMBOREE 2025: PROMPT MỘT MÙA HÈ SÔI NỔI",
@@ -18,9 +29,12 @@ export default function Home() {
   }
 
   return (
-      <div>
+    <div>
+      {/* ✅ Hero Section auto slide */}
       <HeroSection featuredEvent={featuredEvent} />
-      <EventGrid events={recentEvents} />
+
+      {/* Danh sách sự kiện */}
+      <EventGrid events={recentEvents} columns={4} />
 
       {/* Featured Summer Event */}
       <section className="py-16 bg-gray-50">
@@ -36,7 +50,10 @@ export default function Home() {
               { name: "JAM TECH KHỞI NGHIỆP SÁNG TẠO", color: "bg-green-500" },
               { name: "JAM TECH ĐỊNH HỚI THỂ LỰC", color: "bg-orange-500" },
             ].map((category, index) => (
-              <div key={index} className={`${category.color} text-white p-6 rounded-lg text-center`}>
+              <div
+                key={index}
+                className={`${category.color} text-white p-6 rounded-lg text-center transition-transform hover:scale-105`}
+              >
                 <h3 className="font-bold text-sm">{category.name}</h3>
               </div>
             ))}

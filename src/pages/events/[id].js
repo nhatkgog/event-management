@@ -1,28 +1,37 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/router"
-import Image from "next/image"
-import Layout from "../../components/layout/Layout"
-import Button from "../../components/Button"
-import Card from "../../components/Card"
-import { events } from "../../lib/data"
-import { formatDate, formatTime } from "../../lib/utils"
+import { useRouter } from "next/router";
+import Image from "next/image";
+import Layout from "../../components/layout/Layout";
+import Button from "../../components/Button";
+import Card from "../../components/Card";
+import { events, schedules } from "../../lib/data";
+import { formatDate, formatTime } from "../../lib/utils";
 
 export default function EventDetail() {
-  const router = useRouter()
-  const { id } = router.query
+  const router = useRouter();
+  const { id } = router.query;
+  const event = events.find((e) => e.id === Number.parseInt(id));
 
-  const event = events.find((e) => e.id === Number.parseInt(id))
+  const eventSchedules = event
+    ? schedules
+        .filter((s) => s.eventId === event.id)
+        .sort((a, b) => a.order - b.order)
+    : [];
 
   if (!event) {
     return (
       <Layout title="Sự kiện không tồn tại - UniVibe">
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-600 mb-4">Sự kiện không tồn tại</h1>
-          <Button onClick={() => router.push("/events")}>Quay lại danh sách sự kiện</Button>
+          <h1 className="text-2xl font-bold text-gray-600 mb-4">
+            Sự kiện không tồn tại
+          </h1>
+          <Button onClick={() => router.push("/events")}>
+            Quay lại danh sách sự kiện
+          </Button>
         </div>
       </Layout>
-    )
+    );
   }
 
   const categoryColors = {
@@ -30,13 +39,19 @@ export default function EventDetail() {
     SPORT: "bg-green-500",
     ART: "bg-purple-500",
     ACADEMIC: "bg-orange-500",
-  }
+  };
 
   return (
-    <Layout title={`${event.title} - UniVibe`}>
+    <>
+      {" "}
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden">
-        <Image src={event.image || "/placeholder.svg"} alt={event.title} fill className="object-cover" />
+        <Image
+          src={event.image || "/placeholder.svg"}
+          alt={event.title}
+          fill
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center">
           <div className="container mx-auto px-4 text-white">
@@ -53,13 +68,14 @@ export default function EventDetail() {
                   {formatDate(event.date)} - {formatTime(event.time)}
                 </span>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{event.title}</h1>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-4">
+                {event.title}
+              </h1>
               <p className="text-xl text-white/90">{event.description}</p>
             </div>
           </div>
         </div>
       </section>
-
       {/* Event Details */}
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -69,11 +85,8 @@ export default function EventDetail() {
               <Card className="p-8">
                 <h2 className="text-2xl font-bold mb-6">Thông tin chi tiết</h2>
                 <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed mb-6">{event.description}</p>
-                  <p className="text-gray-700 leading-relaxed">
-                    Đây là một cơ hội tuyệt vời để bạn có thể học hỏi, giao lưu và phát triển kỹ năng cùng với các bạn
-                    sinh viên khác trong trường. Sự kiện được tổ chức bởi {event.organizer} với sự tham gia của các
-                    chuyên gia và giảng viên có kinh nghiệm.
+                  <p className="text-gray-700 leading-relaxed mb-6">
+                    {event.description}
                   </p>
                 </div>
               </Card>
@@ -81,34 +94,24 @@ export default function EventDetail() {
               <Card className="p-8">
                 <h2 className="text-2xl font-bold mb-6">Lịch trình sự kiện</h2>
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Đăng ký và check-in</h3>
-                      <p className="text-gray-600 text-sm">08:00 - 08:30</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Khai mạc và giới thiệu</h3>
-                      <p className="text-gray-600 text-sm">08:30 - 09:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Hoạt động chính</h3>
-                      <p className="text-gray-600 text-sm">09:00 - 16:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    <div>
-                      <h3 className="font-semibold">Tổng kết và trao giải</h3>
-                      <p className="text-gray-600 text-sm">16:00 - 17:00</p>
-                    </div>
-                  </div>
+                  {eventSchedules.length > 0 ? (
+                    eventSchedules.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="font-semibold">{item.title}</h3>
+                          <p className="text-gray-600 text-sm">{item.time}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">
+                      Chưa có lịch trình cho sự kiện này.
+                    </p>
+                  )}
                 </div>
               </Card>
             </div>
@@ -119,7 +122,12 @@ export default function EventDetail() {
                 <h3 className="text-xl font-bold mb-4">Thông tin sự kiện</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -135,7 +143,12 @@ export default function EventDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -155,7 +168,12 @@ export default function EventDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -171,7 +189,12 @@ export default function EventDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -192,12 +215,26 @@ export default function EventDetail() {
                 <div className="space-y-4">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
-                      <span className="font-medium text-green-800">Miễn phí tham gia</span>
+                      <span className="font-medium text-green-800">
+                        Miễn phí tham gia
+                      </span>
                     </div>
-                    <p className="text-green-700 text-sm">Sự kiện hoàn toàn miễn phí cho tất cả sinh viên</p>
+                    <p className="text-green-700 text-sm">
+                      Sự kiện hoàn toàn miễn phí cho tất cả sinh viên
+                    </p>
                   </div>
                   <Button className="w-full" size="lg">
                     Đăng ký ngay
@@ -212,7 +249,10 @@ export default function EventDetail() {
                 <h3 className="text-xl font-bold mb-4">Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {event.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                    <span
+                      key={index}
+                      className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                    >
                       {tag}
                     </span>
                   ))}
@@ -222,6 +262,6 @@ export default function EventDetail() {
           </div>
         </div>
       </section>
-    </Layout>
-  )
+    </>
+  );
 }
