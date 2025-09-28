@@ -1,26 +1,33 @@
 import dbConnect, { Notification } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
-import {withRateLimit} from "@/lib/rate-limit";
 
 async function handler(req, res) {
   const { method } = req;
-  const { id, receiverId } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
-        const query = {};
-        if (id) query._id = id;
-        if (receiverId) query.receiverId = receiverId;
+        const { id, ...filters } = req.query;
 
-        const notifications = await Notification.find(query)
-          .populate('senderId', 'fullName')
-          .populate('eventId', 'title')
-          .sort({ createdAt: -1 }); // Show newest first
+        if (id) {
+          const notification = await Notification.findById(id)
+            .populate('senderId', 'fullName')
+            .populate('eventId', 'title');
 
-        return res.status(200).json({ success: true, data: notifications });
+          if (!notification) {
+            return res.status(404).json({ success: false, message: 'Notification not found' });
+          }
+          return res.status(200).json({ success: true, data: notification });
+        } else {
+          const notifications = await Notification.find(filters)
+            .populate('senderId', 'fullName')
+            .populate('eventId', 'title')
+            .sort({ createdAt: -1 }); // Show newest first
+
+          return res.status(200).json({ success: true, data: notifications });
+        }
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
       }
@@ -56,4 +63,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

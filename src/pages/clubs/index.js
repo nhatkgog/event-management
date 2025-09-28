@@ -5,6 +5,18 @@ import Layout from "../../components/layout/Layout"
 import ClubCard from "../../components/ClubCard"
 import Button from "../../components/Button"
 import { clubs } from "@/lib/data"
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import AdminLayout from "@/components/AdminLayout";
+
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
 
 // Extended clubs data to match the design
 const extendedClubs = [
@@ -86,7 +98,8 @@ const categories = [
   { id: "CULTURE", label: "Văn hóa", color: "bg-teal-500" },
 ]
 
-export default function Index() {
+export default function Index({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -113,20 +126,17 @@ export default function Index() {
   }, [selectedCategory, searchQuery])
 
   return (
-    // <Layout title="Câu lạc bộ sinh viên - UniVibe">
+    <SelectedLayout title="Câu lạc bộ sinh viên - UniVibe">
       <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-red-500 to-orange-400 text-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <div className="inline-block bg-white/20 px-4 py-2 rounded-full text-sm mb-4">Ở TRUNG TÂM</div>
           <h1 className="text-4xl lg:text-5xl font-bold mb-4">KHÁM PHÁ CÁC CÂU LẠC BỘ</h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
             Tham gia những hoạt động thú vị, kết nối bạn bè và phát triển kỹ năng cùng các câu lạc bộ sinh viên tại
             trường
           </p>
-          <Button variant="secondary" size="lg">
-            Xem tất cả sự kiện
-          </Button>
+         
         </div>
       </section>
 
@@ -230,6 +240,6 @@ export default function Index() {
         </div>
       </section>
       </div>
-    // </Layout>
+    </SelectedLayout>
   )
 }

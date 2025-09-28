@@ -1,33 +1,38 @@
 import dbConnect, { ClubMembership, User, Club } from '../../../lib/db';
-import {internalAccess} from "@/utils/internalAccess";
-import {withRateLimit} from "@/lib/rate-limit";
+import { internalAccess } from '../../../utils/internalAccess';
 
 async function handler(req, res) {
   const { method } = req;
-  const { id, userId, clubId } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
-        const query = {};
-        if (userId) query.userId = userId;
-        if (clubId) query.clubId = clubId;
+        const { id, ...filters } = req.query;
 
-        // Populate user and club details for more context
-        const memberships = await ClubMembership.find(query)
-          .populate('userId', 'fullName email studentCode') // Select fields from User
-          .populate('clubId', 'name description'); // Select fields from Club
+        if (id) {
+          const membership = await ClubMembership.findById(id)
+            .populate('userId')
+            .populate('clubId');
 
-        return res.status(200).json({ success: true, data: memberships });
+          if (!membership) {
+            return res.status(404).json({ success: false, message: 'Membership not found' });
+          }
+          return res.status(200).json({ success: true, data: membership });
+        } else {
+          const memberships = await ClubMembership.find(filters)
+            .populate('userId')
+            .populate('clubId');
+
+          return res.status(200).json({ success: true, data: memberships });
+        }
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
       }
 
     case 'POST':
       try {
-        // Check if user and club exist before creating membership
         const userExists = await User.findById(req.body.userId);
         const clubExists = await Club.findById(req.body.clubId);
 
@@ -35,11 +40,11 @@ async function handler(req, res) {
           return res.status(404).json({ success: false, message: "User or Club not found" });
         }
 
-        // The unique index in the schema will prevent duplicate memberships
         const membership = await ClubMembership.create(req.body);
+        await membership.populate('userId');
+        await membership.populate('clubId');
         return res.status(201).json({ success: true, data: membership });
       } catch (error) {
-        // Handle duplicate key error
         if (error.code === 11000) {
           return res.status(409).json({ success: false, message: 'User is already a member of this club.' });
         }
@@ -48,10 +53,10 @@ async function handler(req, res) {
 
     case 'PUT':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Membership ID is required' });
         }
-        // Only allow updating the 'role' field
         const { role } = req.body;
         if (!role) {
             return res.status(400).json({ success: false, message: "Role is required for update." });
@@ -61,7 +66,8 @@ async function handler(req, res) {
           new: true,
           runValidators: true,
         });
-
+        await membership.populate('userId');
+        await membership.populate('clubId');
         if (!membership) {
           return res.status(404).json({ success: false, message: 'Membership not found' });
         }
@@ -72,6 +78,7 @@ async function handler(req, res) {
 
     case 'DELETE':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Membership ID is required' });
         }
@@ -90,4 +97,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

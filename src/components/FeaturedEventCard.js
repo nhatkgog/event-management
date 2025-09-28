@@ -15,7 +15,7 @@ export default function FeaturedEventCard({ event }) {
           </div>
           <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
           <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
-          <Button>Xem lịch trình</Button>
+          <Button>Chi tiết</Button>
         </div>
       </div>
     </Card>

@@ -1,16 +1,16 @@
 import dbConnect, { Role } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
-import {withRateLimit} from "@/lib/rate-limit";
 
 async function handler(req, res) {
   const { method } = req;
-  const { id } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
+        const { id, ...filters } = req.query;
+
         if (id) {
           const role = await Role.findById(id);
           if (!role) {
@@ -18,7 +18,7 @@ async function handler(req, res) {
           }
           return res.status(200).json({ success: true, data: role });
         } else {
-          const roles = await Role.find({});
+          const roles = await Role.find(filters);
           return res.status(200).json({ success: true, data: roles });
         }
       } catch (error) {
@@ -38,6 +38,7 @@ async function handler(req, res) {
 
     case 'PUT':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Role ID is required' });
         }
@@ -55,6 +56,7 @@ async function handler(req, res) {
 
     case 'DELETE':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Role ID is required' });
         }
@@ -73,4 +75,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

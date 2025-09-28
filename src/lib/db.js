@@ -58,6 +58,18 @@ async function dbConnect() {
   return cached.conn;
 }
 
+/**
+ * Disconnects from the database and resets the cache.
+ */
+export async function dbDisconnect() {
+  if (cached.conn) {
+    await mongoose.disconnect();
+    console.log("MongoDB disconnected.");
+  }
+  cached.conn = null;
+  cached.promise = null;
+}
+
 // --- Định nghĩa Schema ---
 const RoleSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true }
@@ -82,6 +94,7 @@ const ClubSchema = new mongoose.Schema({
     name:        { type: String, required: true, unique: true },
     description: String,
     imageUrl: { type: String },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     // Users who can create/manage events for this club
     organizerIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     // Optional: all members of the club
@@ -220,3 +233,11 @@ export async function migrateAddFields(Model, fields = {}) {
     lastSeenAt: null,
     legacyFlag: { remove: true },
 });*/
+
+/*
+const result = await Club.updateMany(
+    { categoryId: { $exists: false } },
+    { $set: { categoryId: '68dab8a303e1c238245101c0' } }
+);
+console.error("Migration result:" + JSON.stringify(req.body, null, 2));
+console.error('User migration result:', result);*/

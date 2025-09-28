@@ -1,24 +1,24 @@
-import dbConnect, { Club } from '../../../lib/db';
-import {internalAccess} from "@/utils/internalAccess";
-import {withRateLimit} from "@/lib/rate-limit";
+import dbConnect, {Club, dbDisconnect, migrateAddFields} from '../../../lib/db';
+import { internalAccess } from '../../../utils/internalAccess';
 
 async function handler(req, res) {
   const { method } = req;
-  const { id } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
+        const { id, ...filters } = req.query;
+
         if (id) {
-          const club = await Club.findById(id);
+          const club = await Club.findById(id).populate('categoryId');
           if (!club) {
             return res.status(404).json({ success: false, message: 'Club not found' });
           }
           return res.status(200).json({ success: true, data: club });
         } else {
-          const clubs = await Club.find({});
+          const clubs = await Club.find(filters).populate('categoryId');
           return res.status(200).json({ success: true, data: clubs });
         }
       } catch (error) {
@@ -28,6 +28,8 @@ async function handler(req, res) {
     case 'POST':
       try {
         const club = await Club.create(req.body);
+
+        await club.populate('categoryId');
         return res.status(201).json({ success: true, data: club });
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
@@ -35,6 +37,7 @@ async function handler(req, res) {
 
     case 'PUT':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Club ID is required' });
         }
@@ -42,6 +45,9 @@ async function handler(req, res) {
           new: true,
           runValidators: true,
         });
+
+        await club.populate('categoryId');
+
         if (!club) {
           return res.status(404).json({ success: false, message: 'Club not found' });
         }
@@ -52,6 +58,7 @@ async function handler(req, res) {
 
     case 'DELETE':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Club ID is required' });
         }
@@ -70,22 +77,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
-
-// import rateLimit from '../../../lib/rate-limit';
-//
-// const limiter = rateLimit({ interval: 60_000, max: 10 });
-//
-// export default async function handler(req, res) {
-//     // identify client by IP
-//     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-//     try {
-//         await limiter.check(ip);
-//     } catch (err) {
-//         res.setHeader('Retry-After', '60'); // seconds
-//         return res.status(429).json({ error: err.message });
-//     }
-//
-//     // your normal API logic
-//     res.status(200).json({ message: 'Success' });
-// }
+export default internalAccess(handler);

@@ -11,7 +11,7 @@ export function formatDate(date) {
 }
 
 export function formatTime(time) {
-  return new Date(`2000-01-01T${time}`).toLocaleTimeString("vi-VN", {
+  return new Date(`${time}`).toLocaleTimeString("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
   })

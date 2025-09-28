@@ -1,16 +1,16 @@
 import dbConnect, { User } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
-import {withRateLimit} from "@/lib/rate-limit";
 
 async function handler(req, res) {
   const { method } = req;
-  const { id } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
+        const { id, ...filters } = req.query;
+
         if (id) {
           const user = await User.findById(id).populate('roleId');
           if (!user) {
@@ -18,7 +18,7 @@ async function handler(req, res) {
           }
           return res.status(200).json({ success: true, data: user });
         } else {
-          const users = await User.find({}).populate('roleId');
+          const users = await User.find(filters).populate('roleId');
           return res.status(200).json({ success: true, data: users });
         }
       } catch (error) {
@@ -28,8 +28,12 @@ async function handler(req, res) {
     case 'POST':
       try {
         const user = await User.create(req.body);
+
+        await user.populate('roleId');
+
         return res.status(201).json({ success: true, data: user });
       } catch (error) {
+        console.error(error.message);
         if (error.code === 11000) {
           return res.status(409).json({ success: false, message: 'A user with that Clerk ID, email, or student code already exists.' });
         }
@@ -38,6 +42,7 @@ async function handler(req, res) {
 
     case 'PUT':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'User ID is required' });
         }
@@ -55,6 +60,7 @@ async function handler(req, res) {
 
     case 'DELETE':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'User ID is required' });
         }
@@ -73,4 +79,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

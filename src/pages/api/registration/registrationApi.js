@@ -1,26 +1,32 @@
 import dbConnect, { Registration } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
-import {withRateLimit} from "@/lib/rate-limit";
 
 async function handler(req, res) {
   const { method } = req;
-  const { id, eventId, userId } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
-        const query = {};
-        if (id) query._id = id;
-        if (eventId) query.eventId = eventId;
-        if (userId) query.userId = userId;
+        const { id, ...filters } = req.query;
 
-        const registrations = await Registration.find(query)
-          .populate('userId', 'fullName email studentCode')
-          .populate('eventId', 'title date');
+        if (id) {
+          const registration = await Registration.findById(id)
+            .populate('userId', 'fullName email studentCode')
+            .populate('eventId', 'title date');
 
-        return res.status(200).json({ success: true, data: registrations });
+          if (!registration) {
+            return res.status(404).json({ success: false, message: 'Registration not found' });
+          }
+          return res.status(200).json({ success: true, data: registration });
+        } else {
+          const registrations = await Registration.find(filters)
+            .populate('userId', 'fullName email studentCode')
+            .populate('eventId', 'title date');
+
+          return res.status(200).json({ success: true, data: registrations });
+        }
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
       }
@@ -38,6 +44,7 @@ async function handler(req, res) {
 
     case 'PUT': // For updating status (e.g., check-in, attended)
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Registration ID is required' });
         }
@@ -55,6 +62,7 @@ async function handler(req, res) {
 
     case 'DELETE': // Cancels a registration
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Registration ID is required' });
         }
@@ -76,4 +84,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

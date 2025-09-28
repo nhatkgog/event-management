@@ -1,15 +1,28 @@
 "use client"
 
 import { useState } from "react"
-import AdminLayout from "../../components/AdminLayout"
 import StatCard from "../../components/StatCard"
 import EventForm from "../../components/EventForm"
 import NotificationPanel from "../../components/NotificationPanel"
 import UpcomingEvents from "../../components/UpcomingEvents"
 import Card from "../../components/Card"
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
-export default function AdminDashboard() {
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
+
+export default function AdminDashboard({ role }) {
+  const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [events, setEvents] = useState([])
 
   const handleCreateEvent = (eventData) => {
@@ -24,7 +37,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    // <AdminLayout title="Admin Dashboard - UniVibe">
+    <SelectedLayout title="Admin Dashboard - UniVibe">
       <div>
       <SignedIn>
         {/* Hero Section */}
@@ -97,68 +110,7 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        {/* Recent Index */}
-        <section className="py-8">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6">LỊCH SỬ SỰ KIỆN ĐÃ TỔ CHỨC</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                {
-                  id: 1,
-                  title: "Workshop kỹ năng mềm",
-                  date: "12 online - 15:00 | 17/07/2025",
-                  status: "Đã hoàn thành",
-                  participants: "25/30 sinh viên",
-                  location: "Phòng hội thảo B201",
-                  category: "ACADEMIC",
-                  color: "bg-orange-100",
-                },
-                {
-                  id: 2,
-                  title: "Cuộc thi AI Contest",
-                  date: "15 steps - 17:00 | 14/07/2025",
-                  status: "Đang ký",
-                  participants: "28/30 sinh viên",
-                  location: "Lab AI - C301",
-                  category: "TECH",
-                  color: "bg-blue-100",
-                },
-                {
-                  id: 3,
-                  title: "Triển lãm nghệ thuật sinh viên",
-                  date: "18 online - 18:00 | 13/07/2025",
-                  status: "Xem báo cáo",
-                  participants: "156/150 sinh viên",
-                  location: "Thư viện trung tâm",
-                  category: "ART",
-                  color: "bg-purple-100",
-                },
-              ].map((event) => (
-                <Card key={event.id} className={`p-6 ${event.color}`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-2">{event.title}</h3>
-                      <p className="text-gray-600 text-sm mb-2">{event.date}</p>
-                      <p className="text-gray-600 text-sm mb-2">{event.participants}</p>
-                      <p className="text-gray-600 text-sm">{event.location}</p>
-                    </div>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">{event.status}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition-colors">
-                      Xem báo cáo
-                    </button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-            <div className="text-center mt-8">
-              <button className="border border-red-500 text-red-500 px-8 py-3 rounded-full hover:bg-red-50 transition-colors">
-                Xem thêm
-              </button>
-            </div>
-          </div>
-        </section>
+      
       </SignedIn>
       <SignedOut>
         <div className="container mx-auto px-4 py-16 text-center">
@@ -167,6 +119,11 @@ export default function AdminDashboard() {
         </div>
       </SignedOut>
       </div>
-    // </AdminLayout>
+     </SelectedLayout>
   )
 }
+
+// AdminDashboard.getLayout = function getLayout(page) {
+//   const AdminLayout = require('@/components/AdminLayout').default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };

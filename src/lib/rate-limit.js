@@ -1,4 +1,4 @@
-import LRU from 'lru-cache';
+import LRUCache from 'lru-cache';
 
 /**
  * @param {Object} options
@@ -7,7 +7,7 @@ import LRU from 'lru-cache';
  * @param {number} [options.uniqueTokenPerInterval]  Max distinct IPs tracked
  */
 export default function rateLimit({ interval, max, uniqueTokenPerInterval }) {
-    const tokenCache = new LRU({
+    const tokenCache = new LRUCache({
         max: uniqueTokenPerInterval || 500,
         ttl: interval,
     });

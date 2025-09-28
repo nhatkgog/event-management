@@ -1,35 +1,34 @@
 import dbConnect, { Event } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
-import {withRateLimit} from "@/lib/rate-limit";
 
 async function handler(req, res) {
   const { method } = req;
-  const { id } = req.query;
 
   await dbConnect();
 
   switch (method) {
     case 'GET':
       try {
+        const { id, ...queryFilters } = req.query;
+
         if (id) {
-          const event = await Event.findById(id)
-            .where({ isDeleted: false })
-            .populate('clubId', 'name')
-            .populate('organizerId', 'fullName email')
-            .populate('categoryId', 'name');
+          // When fetching by ID, we still ensure the event is not soft-deleted.
+          const event = await Event.findOne({ _id: id, isDeleted: false })
+            .populate('clubId')
+            .populate('organizerId')
+            .populate('categoryId');
 
           if (!event) {
             return res.status(404).json({ success: false, message: 'Event not found' });
           }
           return res.status(200).json({ success: true, data: event });
         } else {
-          // Add any desired filters, e.g., by clubId, status
-          const filters = { isDeleted: false, ...req.query };
-          delete filters.id; // id is handled separately
-
+          // For list queries, default to not showing deleted events,
+          // but allow overriding it if `isDeleted=true` is in the query.
+          const filters = { isDeleted: false, ...queryFilters };
           const events = await Event.find(filters)
-            .populate('clubId', 'name')
-            .populate('categoryId', 'name');
+            .populate('clubId')
+            .populate('categoryId');
           return res.status(200).json({ success: true, data: events });
         }
       } catch (error) {
@@ -39,6 +38,9 @@ async function handler(req, res) {
     case 'POST':
       try {
         const event = await Event.create(req.body);
+        await event.populate('clubId');
+        await event.populate('organizerId');
+        await event.populate('categoryId');
         return res.status(201).json({ success: true, data: event });
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
@@ -46,6 +48,7 @@ async function handler(req, res) {
 
     case 'PUT':
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Event ID is required' });
         }
@@ -53,6 +56,9 @@ async function handler(req, res) {
           new: true,
           runValidators: true,
         });
+        await event.populate('clubId');
+        await event.populate('organizerId');
+        await event.populate('categoryId');
         if (!event) {
           return res.status(404).json({ success: false, message: 'Event not found' });
         }
@@ -63,6 +69,7 @@ async function handler(req, res) {
 
     case 'DELETE': // Soft delete
       try {
+        const { id } = req.query;
         if (!id) {
           return res.status(400).json({ success: false, message: 'Event ID is required' });
         }
@@ -85,4 +92,4 @@ async function handler(req, res) {
   }
 }
 
-export default withRateLimit({ max: 5 })( internalAccess(handler) );
+export default internalAccess(handler);

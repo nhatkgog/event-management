@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/router"
-import Image from "next/image"
-import Layout from "../../components/layout/Layout"
-import Button from "../../components/Button"
-import Card from "../../components/Card"
-import { clubs } from "../../lib/data"
+import { useRouter } from "next/router";
+import Image from "next/image";
+import Button from "../../components/Button";
+import Card from "../../components/Card";
+import { clubs } from "../../lib/data";
+import Link from "next/link";
+import EventGrid from "@/components/EventGrid";
 
-// Extended clubs data
+// Extended clubs data with members + events
 const extendedClubs = [
   ...clubs,
   {
@@ -25,24 +26,58 @@ const extendedClubs = [
     activities: ["Bóng đá", "Bóng rổ", "Cầu lông", "Võ thuật", "Chạy bộ"],
     meetingTime: "Thứ 3, Thứ 5 - 17:00-19:00",
     location: "Sân thể thao trường",
+    membersList: [
+      {
+        id: 1,
+        name: "Nguyễn Văn A",
+        role: "Chủ nhiệm",
+        avatar: "/member1.jpg",
+      },
+      {
+        id: 2,
+        name: "Trần Thị B",
+        role: "Phó chủ nhiệm",
+        avatar: "/member2.jpg",
+      },
+      { id: 3, name: "Lê Văn C", role: "Thành viên", avatar: "/member3.jpg" },
+      { id: 4, name: "Phạm Thị D", role: "Thành viên", avatar: "/member4.jpg" },
+    ],
+    upcomingEvents: [
+      {
+        id: 1,
+        title: "Giải đấu bóng đá sinh viên",
+        date: "2025-10-15",
+        location: "Sân vận động trường",
+        description: "Một giải đấu bóng đá giao hữu giữa các khoa.",
+      },
+      {
+        id: 2,
+        title: "Workshop Võ thuật Vovinam",
+        date: "2025-11-02",
+        location: "Nhà đa năng A",
+        description: "Buổi chia sẻ kỹ năng võ thuật và rèn luyện thể chất.",
+      },
+    ],
   },
-]
+];
 
 export default function ClubDetail() {
-  const router = useRouter()
-  const { id } = router.query
+  const router = useRouter();
+  const { id } = router.query;
 
-  const club = extendedClubs.find((c) => c.id === Number.parseInt(id))
+  const club = extendedClubs.find((c) => c.id === Number.parseInt(id));
 
   if (!club) {
     return (
-      <Layout title="Câu lạc bộ không tồn tại - UniVibe">
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-600 mb-4">Câu lạc bộ không tồn tại</h1>
-          <Button onClick={() => router.push("/clubs")}>Quay lại danh sách câu lạc bộ</Button>
-        </div>
-      </Layout>
-    )
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold text-gray-700 mb-4">
+          Câu lạc bộ không tồn tại
+        </h1>
+        <Button onClick={() => router.push("/clubs")}>
+          Quay lại danh sách câu lạc bộ
+        </Button>
+      </div>
+    );
   }
 
   const categoryColors = {
@@ -51,178 +86,149 @@ export default function ClubDetail() {
     ART: "bg-purple-500",
     ACADEMIC: "bg-orange-500",
     CULTURE: "bg-teal-500",
-  }
+  };
 
   return (
-    <Layout title={`${club.name} - UniVibe`}>
+    <>
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
-        <Image src={club.image || "/placeholder.svg"} alt={club.name} fill className="object-cover" />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute inset-0 flex items-center">
+      <section className="relative h-[400px] lg:h-[500px] overflow-hidden rounded-b-2xl shadow-lg">
+        <Image
+          src={club.image || "/placeholder.svg"}
+          alt={club.name}
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+        <div className="absolute inset-0 flex items-end pb-10">
           <div className="container mx-auto px-4 text-white">
             <div className="max-w-4xl">
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <span
                   className={`${
                     categoryColors[club.category] || "bg-gray-500"
-                  } text-white px-4 py-2 rounded-full text-sm font-medium`}
+                  } px-4 py-1 rounded-full text-sm font-medium`}
                 >
                   {club.category}
                 </span>
-                <span className="bg-white/20 px-4 py-2 rounded-full text-sm">
+                <span className="bg-white/20 backdrop-blur px-4 py-1 rounded-full text-sm">
                   {club.members} thành viên • {club.events} sự kiện
                 </span>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{club.name}</h1>
-              <p className="text-xl text-white/90">{club.description}</p>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-3">
+                {club.name}
+              </h1>
+              <p className="text-lg text-white/90 max-w-2xl">
+                {club.description}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Club Details */}
+      {/* Main Content */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
+            {/* Left content */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Giới thiệu */}
               <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Giới thiệu về câu lạc bộ</h2>
-                <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed mb-6">{club.fullDescription || club.description}</p>
-                  <p className="text-gray-700 leading-relaxed">
-                    Tham gia câu lạc bộ để có cơ hội học hỏi, giao lưu và phát triển kỹ năng cùng với các bạn sinh viên
-                    khác trong trường. Chúng tôi luôn chào đón các thành viên mới với tinh thần cởi mở và nhiệt tình.
-                  </p>
-                </div>
+                <h2 className="text-2xl font-bold mb-6">Giới thiệu</h2>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  {club.fullDescription || club.description}
+                </p>
               </Card>
 
-              {club.activities && (
+              {/*Thành viên CLB */}
+              {club.membersList && (
                 <Card className="p-8">
-                  <h2 className="text-2xl font-bold mb-6">Hoạt động chính</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {club.activities.map((activity, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 text-center">
-                        <span className="font-medium text-gray-800">{activity}</span>
+                  <h2 className="text-2xl font-bold mb-6">
+                    Thành viên
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    {club.membersList.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex flex-col items-center text-center hover:scale-105 transition"
+                      >
+                        <div className="w-20 h-20 rounded-full overflow-hidden mb-3 shadow-md">
+                          <Image
+                            src={member.avatar || "/placeholder.svg"}
+                            alt={member.name}
+                            width={80}
+                            height={80}
+                            className="object-cover"
+                          />
+                        </div>
+                        <p className="font-semibold text-gray-800">
+                          {member.name}
+                        </p>
+                        <p className="text-sm text-gray-500">{member.role}</p>
                       </div>
                     ))}
                   </div>
                 </Card>
               )}
 
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Thành tích nổi bật</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-6 bg-red-50 rounded-lg">
-                    <div className="text-3xl font-bold text-red-500 mb-2">{club.members}</div>
-                    <div className="text-gray-600">Thành viên tích cực</div>
-                  </div>
-                  <div className="text-center p-6 bg-blue-50 rounded-lg">
-                    <div className="text-3xl font-bold text-blue-500 mb-2">{club.events}</div>
-                    <div className="text-gray-600">Sự kiện đã tổ chức</div>
-                  </div>
-                  <div className="text-center p-6 bg-green-50 rounded-lg">
-                    <div className="text-3xl font-bold text-green-500 mb-2">{club.successRate}</div>
-                    <div className="text-gray-600">Tỷ lệ thành công</div>
-                  </div>
-                </div>
-              </Card>
+              
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Thông tin câu lạc bộ</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a2 2 0 012-2h4a2 2 0 012 2v1m-6 0h8m-8 0H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-medium">Thời gian họp</p>
-                      <p className="text-gray-600 text-sm">{club.meetingTime || "Linh hoạt theo lịch"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-medium">Địa điểm</p>
-                      <p className="text-gray-600 text-sm">{club.location || "Phòng họp CLB"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-medium">Thành viên</p>
-                      <p className="text-gray-600 text-sm">{club.members} người</p>
-                    </div>
-                  </div>
-                </div>
+              <Card className="p-6 space-y-4">
+                <h3 className="text-xl font-bold mb-4">Thông tin CLB</h3>
+                <InfoItem
+                  icon="📅"
+                  label="Thời gian họp"
+                  value={club.meetingTime}
+                />
+                <InfoItem icon="📍" label="Địa điểm" value={club.location} />
+                <InfoItem
+                  icon="👥"
+                  label="Thành viên"
+                  value={`${club.members} người`}
+                />
               </Card>
 
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Tham gia câu lạc bộ</h3>
-                <div className="space-y-4">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="font-medium text-green-800">Miễn phí tham gia</span>
-                    </div>
-                    <p className="text-green-700 text-sm">Hoàn toàn miễn phí cho tất cả sinh viên</p>
+              <Card className="p-6 space-y-4">
+                <h3 className="text-xl font-bold mb-4">Tham gia ngay</h3>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="font-medium text-green-800 flex gap-2 items-center mb-1">
+                    ✅ Miễn phí tham gia
                   </div>
-                  <Button className="w-full" size="lg">
-                    Tham gia ngay
-                  </Button>
-                  <Button variant="outline" className="w-full bg-transparent">
-                    Liên hệ CLB
-                  </Button>
+                  <p className="text-green-700 text-sm">
+                    Hoàn toàn miễn phí cho sinh viên
+                  </p>
                 </div>
-              </Card>
-
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Danh mục</h3>
-                <div className="flex flex-wrap gap-2">
-                  <span
-                    className={`${
-                      categoryColors[club.category] || "bg-gray-500"
-                    } text-white px-3 py-1 rounded-full text-sm`}
-                  >
-                    {club.category}
-                  </span>
-                </div>
+                <Button className="w-full" size="lg">
+                  Tham gia ngay
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Liên hệ CLB
+                </Button>
               </Card>
             </div>
           </div>
         </div>
       </section>
-    </Layout>
-  )
+      {/*Sự kiện sắp tới */}
+              {club.upcomingEvents && club.upcomingEvents.length > 0 && (
+                <EventGrid events={club.upcomingEvents} title={`Sự kiện sắp tới của ${club.name}`}  columns={4} hidden />
+              )}
+    </>
+  );
+}
+
+// Helper Component cho sidebar info
+function InfoItem({ icon, label, value }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="text-xl">{icon}</div>
+      <div>
+        <p className="font-medium">{label}</p>
+        <p className="text-gray-600 text-sm">{value}</p>
+      </div>
+    </div>
+  );
 }
