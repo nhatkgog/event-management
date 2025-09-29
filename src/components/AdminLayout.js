@@ -19,27 +19,22 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
 
   const menuItems = [
     {
-      href: "/admin",
+      href: "/o",
       label: "Thống kê",
       icon: <BarChart3 className="w-6 h-6" />,
     },
     {
-      href: "/admin/events",
+      href: "/o/events",
       label: "Sự kiện",
       icon: <Calendar className="w-6 h-6" />,
     },
     {
-      href: "/admin/clubs",
+      href: "/o/clubs",
       label: "Câu lạc bộ",
       icon: <Users className="w-6 h-6" />,
     },
     {
-      href: "/admin/attendance",
-      label: "Điểm danh",
-      icon: <ClipboardCheck className="w-6 h-6" />,
-    },
-    {
-      href: "/admin/users",
+      href: "/o/users",
       label: "Quản lý người dùng",
       icon: <Shield className="w-6 h-6" />,
     },
@@ -85,7 +80,7 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
             {menuItems.map((item) => {
               const active =
                 router.pathname === item.href ||
-                (item.href !== "/admin" &&
+                (item.href !== "/o" &&
                   router.pathname.startsWith(item.href));
               return (
                 <Link

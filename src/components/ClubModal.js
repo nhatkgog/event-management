@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import EventForm from "@/components/EventForm";
+import ClubForm from "@/components/ClubForm";
 
-export default function EventModal({ open, onClose, onSubmit, loading, initialData }) {
+export default function ClubModal({ open, onClose, onSubmit, loading, initialData }) {
   // Khóa scroll khi mở modal
   useEffect(() => {
     if (open) {
@@ -40,7 +40,7 @@ export default function EventModal({ open, onClose, onSubmit, loading, initialDa
 
           {/* Nội dung Form */}
           <div className="max-h-[95vh] overflow-y-auto scrollbar-hide p-6">
-            <EventForm
+            <ClubForm
               onSubmit={onSubmit}
               loading={loading}
               initialData={initialData}

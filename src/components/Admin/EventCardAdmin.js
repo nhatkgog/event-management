@@ -77,7 +77,7 @@ export default function EventCardAdmin({
 
         {/* Action Buttons */}
         <div className="mt-auto flex gap-2">
-          <Link href={`/admin/events/${event.id}`} className="flex-1">
+          <Link href={`/o/events/${event.id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full hover:opacity-90 transition">
               Chi tiết
             </Button>

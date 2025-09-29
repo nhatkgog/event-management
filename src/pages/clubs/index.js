@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Layout from "../../components/layout/Layout"
 import ClubCard from "../../components/ClubCard"
 import Button from "../../components/Button"
 import { clubs } from "@/lib/data"
