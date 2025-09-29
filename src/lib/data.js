@@ -31,7 +31,54 @@ export const clubs = [
     events: 3,
     successRate: "98%",
     image: "/martial-arts-vovinam-sport.jpg",
-  },
+  },{
+    id: 4,
+    name: "Sport Club",
+    category: "SPORT",
+    description:
+      "Câu lạc bộ thể thao đa dạng với các môn thể thao khác nhau. Tổ chức các giải đấu và hoạt động rèn luyện sức khỏe.",
+    members: 18,
+    events: 6,
+    successRate: "94%",
+    image: "/martial-arts-vovinam-sport.jpg",
+    fullDescription:
+      "Sport Club là nơi tập hợp những sinh viên yêu thích thể thao và muốn duy trì lối sống khỏe mạnh. Chúng tôi tổ chức các hoạt động đa dạng từ bóng đá, bóng rổ, cầu lông đến các môn võ thuật truyền thống.",
+    activities: ["Bóng đá", "Bóng rổ", "Cầu lông", "Võ thuật", "Chạy bộ"],
+    meetingTime: "Thứ 3, Thứ 5 - 17:00-19:00",
+    location: "Sân thể thao trường",
+    membersList: [
+      {
+        id: 1,
+        name: "Nguyễn Văn A",
+        role: "Chủ nhiệm",
+        avatar: "/member1.jpg",
+      },
+      {
+        id: 2,
+        name: "Trần Thị B",
+        role: "Phó chủ nhiệm",
+        avatar: "/member2.jpg",
+      },
+      { id: 3, name: "Lê Văn C", role: "Thành viên", avatar: "/member3.jpg" },
+      { id: 4, name: "Phạm Thị D", role: "Thành viên", avatar: "/member4.jpg" },
+    ],
+    upcomingEvents: [
+      {
+        id: 1,
+        title: "Giải đấu bóng đá sinh viên",
+        date: "2025-10-15",
+        location: "Sân vận động trường",
+        description: "Một giải đấu bóng đá giao hữu giữa các khoa.",
+      },
+      {
+        id: 2,
+        title: "Workshop Võ thuật Vovinam",
+        date: "2025-11-02",
+        location: "Nhà đa năng A",
+        description: "Buổi chia sẻ kỹ năng võ thuật và rèn luyện thể chất.",
+      },
+    ],
+  }
 ]
 
 export const events = [
@@ -209,4 +256,41 @@ export const schedules = [
   { id: 5, eventId: 2, title: "Khởi động Hackathon", time: "09:00 - 09:30", order: 1 },
   { id: 6, eventId: 2, title: "Coding marathon", time: "09:30 - 18:00", order: 2 },
   { id: 7, eventId: 2, title: "Pitching & Trao giải", time: "18:00 - 20:00", order: 3 },
+];
+
+
+export const registrations = [
+  {
+    _id: "reg1",
+    eventId: 1,
+    user: {
+      _id: "u1",
+      studentCode: "SE150001",
+      fullName: "Nguyễn Văn A",
+    },
+    isCheckedIn: true,
+    isCheckedOut: false,
+  },
+  {
+    _id: "reg2",
+    eventId: 1,
+    user: {
+      _id: "u2",
+      studentCode: "SE150002",
+      fullName: "Trần Thị B",
+    },
+    isCheckedIn: false,
+    isCheckedOut: false,
+  },
+  {
+    _id: "reg3",
+    eventId: 1,
+    user: {
+      _id: "u3",
+      studentCode: "SE150003",
+      fullName: "Phạm Văn C",
+    },
+    isCheckedIn: true,
+    isCheckedOut: true,
+  },
 ];
