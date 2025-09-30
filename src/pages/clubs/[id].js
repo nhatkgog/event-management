@@ -5,8 +5,11 @@ import Image from "next/image";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 import { clubs } from "../../lib/data";
-import Link from "next/link";
 import EventGrid from "@/components/EventGrid";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
 
 // Extended clubs data with members + events
 const extendedClubs = [
@@ -61,11 +64,48 @@ const extendedClubs = [
   },
 ];
 
-export default function ClubDetail() {
+export async function getServerSideProps({ req }){
+    try {
+        // Fetch all data in parallel for efficiency
+        const [clubsRes, categoriesRes] = await Promise.all([
+            fetchWithInternalAccess(`/api/club/clubApi`),
+            fetchWithInternalAccess(`/api/category/categoryApi`)
+        ]);
+
+        // The user role fetching can be done here as well if needed, or separately.
+        // For now, we focus on events and categories.
+        const { userId } = getAuth(req);
+        const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+        const role = clerkUserRes.private_metadata?.role ?? null;
+
+        return {
+            props: {
+                initialClubs: clubsRes.data || [],
+                initialCategories: categoriesRes.data || [],
+                role: role,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching data in getServerSideProps:", error);
+        // Return empty arrays as a fallback to prevent the page from crashing.
+        return {
+            props: {
+                initialClubs: [],
+                initialCategories: [],
+                role: null,
+                error: "Could not load data.",
+            },
+        };
+    }
+}
+
+export default function ClubDetail({ initialClubs, initialCategories, role, error }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
+
   const router = useRouter();
   const { id } = router.query;
 
-  const club = extendedClubs.find((c) => c.id === Number.parseInt(id));
+  const club = initialClubs.find((c) => c._id === id);
 
   if (!club) {
     return (
@@ -89,11 +129,12 @@ export default function ClubDetail() {
   };
 
   return (
-    <>
+
+        <SelectedLayout>
       {/* Hero Section */}
       <section className="relative h-[400px] lg:h-[500px] overflow-hidden rounded-b-2xl shadow-lg">
         <Image
-          src={club.image || "/placeholder.svg"}
+          src={club.imageUrl || "/placeholder.svg"}
           alt={club.name}
           fill
           className="object-cover"
@@ -106,10 +147,10 @@ export default function ClubDetail() {
               <div className="flex items-center gap-3 mb-4">
                 <span
                   className={`${
-                    categoryColors[club.category] || "bg-gray-500"
+                    categoryColors[club.categoryId.name] || "bg-gray-500"
                   } px-4 py-1 rounded-full text-sm font-medium`}
                 >
-                  {club.category}
+                  {club.categoryId.name}
                 </span>
                 <span className="bg-white/20 backdrop-blur px-4 py-1 rounded-full text-sm">
                   {club.members} thành viên • {club.events} sự kiện
@@ -144,22 +185,22 @@ export default function ClubDetail() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                     {club.membersList.map((member) => (
                       <div
-                        key={member.id}
+                        key={member._id}
                         className="flex flex-col items-center text-center hover:scale-105 transition"
                       >
                         <div className="w-20 h-20 rounded-full overflow-hidden mb-3 shadow-md">
                           <Image
                             src={member.avatar || "/placeholder.svg"}
-                            alt={member.name}
+                            alt={member.fullName}
                             width={80}
                             height={80}
                             className="object-cover"
                           />
                         </div>
                         <p className="font-semibold text-gray-800">
-                          {member.name}
+                          {member.fullName}
                         </p>
-                        <p className="text-sm text-gray-500">{member.role}</p>
+                        <p className="text-sm text-gray-500">{member.roleId.name}</p>
                       </div>
                     ))}
                   </div>
@@ -214,7 +255,7 @@ export default function ClubDetail() {
           hidden
         />
       )}
-    </>
+        </SelectedLayout>
   );
 }
 

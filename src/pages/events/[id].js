@@ -7,11 +7,51 @@ import Button from "../../components/Button";
 import Card from "../../components/Card";
 import { events, schedules } from "../../lib/data";
 import { formatDate, formatTime } from "../../lib/utils";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
 
-export default function EventDetail() {
+export async function getServerSideProps({ req }) {
+    try {
+        // Fetch all data in parallel for efficiency
+        const [eventsRes, categoriesRes] = await Promise.all([
+            fetchWithInternalAccess(`/api/event/eventApi`),
+            fetchWithInternalAccess(`/api/category/categoryApi`)
+        ]);
+
+        // The user role fetching can be done here as well if needed, or separately.
+        // For now, we focus on events and categories.
+        const { userId } = getAuth(req);
+        const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+        const role = clerkUserRes.private_metadata?.role ?? null;
+
+        return {
+            props: {
+                initialEvents: eventsRes.data || [],
+                initialCategories: categoriesRes.data || [],
+                role: role,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching data in getServerSideProps:", error);
+        // Return empty arrays as a fallback to prevent the page from crashing.
+        return {
+            props: {
+                initialEvents: [],
+                initialCategories: [],
+                role: null,
+                error: "Could not load data.",
+            },
+        };
+    }
+}
+
+export default function EventDetail({ initialEvents, initialCategories, role, error }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
+
   const router = useRouter();
   const { id } = router.query;
-  const event = events.find((e) => e.id === Number.parseInt(id));
+  const event = initialEvents.find((e) => e._id === id);
 
   const eventSchedules = event
     ? schedules
@@ -42,12 +82,11 @@ export default function EventDetail() {
   };
 
   return (
-    <>
-      {" "}
+      <SelectedLayout>
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden">
         <Image
-          src={event.image || "/placeholder.svg"}
+          src={event.imageUrl || "/placeholder.svg"}
           alt={event.title}
           fill
           className="object-cover"
@@ -59,19 +98,19 @@ export default function EventDetail() {
               <div className="flex items-center gap-4 mb-4">
                 <span
                   className={`${
-                    categoryColors[event.category] || "bg-gray-500"
+                    categoryColors[event.categoryId.name] || "bg-gray-500"
                   } text-white px-4 py-2 rounded-full text-sm font-medium`}
                 >
-                  {event.category}
+                  {event.categoryId.name}
                 </span>
                 <span className="bg-white/20 px-4 py-2 rounded-full text-sm">
-                  {formatDate(event.date)} - {formatTime(event.time)}
+                  {formatDate(event.startAt)} - {formatTime(event.startAt)}
                 </span>
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold mb-4">
                 {event.title}
               </h1>
-              {/* <p className="text-xl text-white/90">{event.description}</p> */}
+               <p className="text-xl text-white/90">{event.description}</p>
             </div>
           </div>
         </div>
@@ -97,7 +136,7 @@ export default function EventDetail() {
                   {eventSchedules.length > 0 ? (
                     eventSchedules.map((item) => (
                       <div
-                        key={item.id}
+                        key={item._id}
                         className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg"
                       >
                         <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
@@ -138,7 +177,7 @@ export default function EventDetail() {
                     <div>
                       <p className="font-medium">Ngày giờ</p>
                       <p className="text-gray-600 text-sm">
-                        {formatDate(event.date)} - {formatTime(event.time)}
+                        {formatDate(event.startAt)} - {formatTime(event.startAt)}
                       </p>
                     </div>
                   </div>
@@ -184,7 +223,7 @@ export default function EventDetail() {
                     <div>
                       <p className="font-medium">Số lượng tham gia</p>
                       <p className="text-gray-600 text-sm">
-                        {event.participants}/{event.maxParticipants} người
+                        {event.capacity/2}/{event.capacity} người
                       </p>
                     </div>
                   </div>
@@ -204,7 +243,7 @@ export default function EventDetail() {
                     </svg>
                     <div>
                       <p className="font-medium">Tổ chức bởi</p>
-                      <p className="text-gray-600 text-sm">{event.organizer}</p>
+                      <p className="text-gray-600 text-sm">{event.organizerId.fullName}</p>
                     </div>
                   </div>
                 </div>
@@ -245,23 +284,23 @@ export default function EventDetail() {
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {event.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </Card>
+              {/*<Card className="p-6">*/}
+              {/*  <h3 className="text-xl font-bold mb-4">Tags</h3>*/}
+              {/*  <div className="flex flex-wrap gap-2">*/}
+              {/*    {event.tags.map((tag, index) => (*/}
+              {/*      <span*/}
+              {/*        key={index}*/}
+              {/*        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"*/}
+              {/*      >*/}
+              {/*        {tag}*/}
+              {/*      </span>*/}
+              {/*    ))}*/}
+              {/*  </div>*/}
+              {/*</Card>*/}
             </div>
           </div>
         </div>
       </section>
-    </>
+      </SelectedLayout>
   );
 }
