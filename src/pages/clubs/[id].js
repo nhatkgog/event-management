@@ -118,9 +118,6 @@ export default function ClubDetail() {
               <h1 className="text-4xl lg:text-5xl font-bold mb-3">
                 {club.name}
               </h1>
-              <p className="text-lg text-white/90 max-w-2xl">
-                {club.description}
-              </p>
             </div>
           </div>
         </div>
@@ -143,9 +140,7 @@ export default function ClubDetail() {
               {/*Thành viên CLB */}
               {club.membersList && (
                 <Card className="p-8">
-                  <h2 className="text-2xl font-bold mb-6">
-                    Thành viên
-                  </h2>
+                  <h2 className="text-2xl font-bold mb-6">Thành viên</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                     {club.membersList.map((member) => (
                       <div
@@ -170,8 +165,6 @@ export default function ClubDetail() {
                   </div>
                 </Card>
               )}
-
-              
             </div>
 
             {/* Sidebar */}
@@ -213,9 +206,14 @@ export default function ClubDetail() {
         </div>
       </section>
       {/*Sự kiện sắp tới */}
-              {club.upcomingEvents && club.upcomingEvents.length > 0 && (
-                <EventGrid events={club.upcomingEvents} title={`Sự kiện sắp tới của ${club.name}`}  columns={4} hidden />
-              )}
+      {club.upcomingEvents && club.upcomingEvents.length > 0 && (
+        <EventGrid
+          events={club.upcomingEvents}
+          title={`Sự kiện sắp tới của ${club.name}`}
+          columns={4}
+          hidden
+        />
+      )}
     </>
   );
 }

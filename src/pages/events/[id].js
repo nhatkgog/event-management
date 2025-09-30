@@ -71,7 +71,7 @@ export default function EventDetail() {
               <h1 className="text-4xl lg:text-5xl font-bold mb-4">
                 {event.title}
               </h1>
-              <p className="text-xl text-white/90">{event.description}</p>
+              {/* <p className="text-xl text-white/90">{event.description}</p> */}
             </div>
           </div>
         </div>

@@ -4,28 +4,29 @@ import { useState } from "react";
 import Button from "./Button";
 import Card from "./Card";
 
-export default function EventForm({
+export default function ClubForm({
   onSubmit,
   categories = [],
-  organizerId,
   initialData = null,
 }) {
   const [formData, setFormData] = useState({
-    organizerId: organizerId || "",
-    title: initialData?.title || "",
+    name: initialData?.name || "",
     description: initialData?.description || "",
     categoryId: initialData?.categoryId || "",
-    startAt: initialData?.startAt ? initialData.startAt.slice(0, 16) : "",
-    endAt: initialData?.endAt ? initialData.endAt.slice(0, 16) : "",
-    status: initialData?.status || "Draft",
-    capacity: initialData?.capacity || 50,
     imageUrl: initialData?.imageUrl || "",
-    surveyLink: initialData?.surveyLink || "",
+    organizerIds: initialData?.organizerIds?.join(", ") || "",
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const dataToSubmit = {
+      ...formData,
+      organizerIds: formData.organizerIds
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    };
+    onSubmit(dataToSubmit);
   };
 
   const handleChange = (e) => {
@@ -47,23 +48,21 @@ export default function EventForm({
   return (
     <Card className="p-8 shadow-none">
       <h2 className="text-2xl font-bold mb-6 text-center">
-        {initialData ? "Chỉnh sửa sự kiện" : "Tạo sự kiện mới"}
+        {initialData ? "Chỉnh sửa Câu lạc bộ" : "Tạo câu lạc bộ mới"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <input type="hidden" name="organizerId" value={formData.organizerId} />
-
-        {/* Title */}
+        {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tên sự kiện
+            Tên câu lạc bộ
           </label>
           <input
             type="text"
-            name="title"
-            value={formData.title}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            placeholder="Hackathon 2025"
+            placeholder="CLB Lập Trình"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
             required
           />
@@ -78,7 +77,7 @@ export default function EventForm({
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Mô tả chi tiết sự kiện..."
+            placeholder="Giới thiệu về CLB..."
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
             required
@@ -106,75 +105,11 @@ export default function EventForm({
           </select>
         </div>
 
-        {/* Start & End */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bắt đầu
-            </label>
-            <input
-              type="datetime-local"
-              name="startAt"
-              value={formData.startAt}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kết thúc
-            </label>
-            <input
-              type="datetime-local"
-              name="endAt"
-              value={formData.endAt}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Trạng thái
-          </label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-          >
-            <option value="Draft">Draft</option>
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-        </div>
-
-        {/* Capacity */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Số người tham gia tối đa
-          </label>
-          <input
-            type="number"
-            name="capacity"
-            value={formData.capacity}
-            onChange={handleChange}
-            min="1"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-            required
-          />
-        </div>
-
         {/* Image */}
         <div>
           <div className="flex items-center gap-4">
             <label className="block text-sm font-medium text-gray-700">
-              Ảnh sự kiện
+              Ảnh đại diện
             </label>
 
             {formData.imageUrl ? (
@@ -222,17 +157,17 @@ export default function EventForm({
           </div>
         </div>
 
-        {/* Survey link */}
+        {/* Organizer IDs */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Link khảo sát (Google Form)
+            ID người quản lý (phân cách bằng dấu phẩy)
           </label>
           <input
-            type="url"
-            name="surveyLink"
-            value={formData.surveyLink}
+            type="text"
+            name="organizerIds"
+            value={formData.organizerIds}
             onChange={handleChange}
-            placeholder="https://forms.gle/..."
+            placeholder="abc123, xyz456"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
           />
         </div>
@@ -246,7 +181,7 @@ export default function EventForm({
              transform transition duration-300 
              hover:from-yellow-500 hover:to-red-500 hover:scale-105 cursor-pointer"
         >
-          {initialData ? "Cập nhật sự kiện" : "Tạo sự kiện"}
+          {initialData ? "Cập nhật Câu lạc bộ" : "Tạo Câu lạc bộ"}
         </Button>
       </form>
     </Card>

@@ -4,6 +4,7 @@ import Footer from "./Footer"
 import { useDbUser } from "@/contexts/UserContext";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
 export default function Layout({ children, title = "UniVibe" }) {
   const { isSignedIn } = useAuth();
@@ -15,9 +16,7 @@ export default function Layout({ children, title = "UniVibe" }) {
           // Use an Immediately Invoked Function Expression (IIFE) to run the async logic.
           (async () => {
               try {
-                  const response = await fetch('/api/auth/syncUser', {
-                      method: 'POST',
-                  });
+                  const response = await fetchWithInternalAccess('/api/auth/syncUser', 'POST');
 
                   if (response.ok) {
                       const data = await response.json();

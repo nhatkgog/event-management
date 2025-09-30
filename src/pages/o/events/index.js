@@ -1,19 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { events } from "../../../lib/data";
 import EventCardAdmin from "../../../components/Admin/EventCardAdmin";
 import EventModal from "../../../components/EventModal";
-import { Plus, Info, Trash2 } from "lucide-react"; // icons
 
 export default function EventsPage() {
   const [eventList, setEventList] = useState(events);
-
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-const handleCreateEvent = async (formData) => {
+  const handleCreateEvent = async (formData) => {
     try {
       setLoading(true);
 
@@ -27,14 +24,34 @@ const handleCreateEvent = async (formData) => {
         throw new Error("Tạo sự kiện thất bại");
       }
 
+      const newEvent = await response.json();
+
+      setEventList((prev) => [...prev, newEvent]);
+
       alert("🎉 Tạo sự kiện thành công!");
       setOpenModal(false);
-      // TODO: reload danh sách sự kiện
     } catch (error) {
       console.error(error);
       alert("Có lỗi xảy ra khi tạo sự kiện!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async (id) => {
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Xóa sự kiện thất bại");
+
+      setEventList((prev) => prev.filter((ev) => ev.id !== id));
+
+      alert("🗑️ Đã xóa sự kiện!");
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi xảy ra khi xóa sự kiện!");
     }
   };
 
@@ -54,7 +71,12 @@ const handleCreateEvent = async (formData) => {
         {eventList.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {eventList.map((event) => (
-              <EventCardAdmin key={event.id} event={event} showStatus={true} />
+              <EventCardAdmin
+                key={event.id}
+                event={event}
+                showStatus={true}
+                onDelete={handleDeleteEvent}
+              />
             ))}
           </div>
         ) : (
