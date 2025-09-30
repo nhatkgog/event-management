@@ -11,13 +11,13 @@ const categoryColors = {
 }
 
 export default function ClubCard({ club }) {
-  const categoryColor = categoryColors[club.category] || "bg-gray-500"
+  const categoryColor = categoryColors[club.categoryId.name] || "bg-gray-500"
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={club.image || "/placeholder.svg"}
+          src={club.imageUrl || "/placeholder.svg"}
           alt={club.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -26,11 +26,11 @@ export default function ClubCard({ club }) {
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {club.category}
+            {club.categoryId.name}
           </span>
         </div>
         <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium">
-          #{club.id.toString().padStart(3, "0")}
+          #{club._id.toString().slice(0, 3)}
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function ClubCard({ club }) {
           <Button size="sm" className="flex-1">
             Tham gia
           </Button>
-          <Link href={`/clubs/${club.id}`} className="flex-1">
+          <Link href={`/clubs/${club._id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full">
               Chi tiết
             </Button>

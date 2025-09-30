@@ -28,6 +28,7 @@ async function handler(req, res) {
           const filters = { isDeleted: false, ...queryFilters };
           const events = await Event.find(filters)
             .populate('clubId')
+            .populate('organizerId')
             .populate('categoryId');
           return res.status(200).json({ success: true, data: events });
         }

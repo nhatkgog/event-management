@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Button from "./../Button";
 import Card from "./../Card";
-import { formatDate } from "../../lib/utils";
+import { formatDate, formatTime } from "../../lib/utils.js";
 
 const categoryColors = {
   TECH: "bg-blue-500",
@@ -28,14 +28,14 @@ export default function EventCardAdmin({
   showStatus = false,
   onDelete,
 }) {
-  const categoryColor = categoryColors[event.category] || "bg-gray-500";
+  const categoryColor = categoryColors[event.categoryId.name] || "bg-gray-500";
   const statusColor = statusColors[event.status] || "bg-gray-100 text-gray-800";
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={event.image || "/placeholder.svg"}
+          src={event.imageUrl || "/placeholder.svg"}
           alt={event.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -44,7 +44,7 @@ export default function EventCardAdmin({
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {event.category}
+            {event.categoryId.name}
           </span>
           {showStatus && (
             <span
@@ -59,9 +59,9 @@ export default function EventCardAdmin({
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">
-            {formatDate(event.date)}
+            {formatDate(event.startAt)}
           </span>
-          <span className="text-sm text-gray-500">{event.time}</span>
+          <span className="text-sm text-gray-500">{formatTime(event.startAt)}</span>
         </div>
 
         <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-red-500 transition-colors">
@@ -70,14 +70,14 @@ export default function EventCardAdmin({
 
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-gray-500">
-            {event.participants}/{event.maxParticipants} người tham gia
+            {event.capacity/2}/{event.capacity} người tham gia
           </span>
-          <span className="text-sm text-gray-500">{event.organizer}</span>
+          <span className="text-sm text-gray-500">{event.organizerId.name}</span>
         </div>
 
         {/* Action Buttons */}
         <div className="mt-auto flex gap-2">
-          <Link href={`/o/events/${event.id}`} className="flex-1">
+          <Link href={`/o/events/${event._id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full hover:opacity-90 transition">
               Chi tiết
             </Button>
@@ -89,7 +89,7 @@ export default function EventCardAdmin({
             onClick={() =>
               onDelete &&
               confirm("Bạn có chắc muốn xóa sự kiện này?") &&
-              onDelete(event.id)
+              onDelete(event._id)
             }
           >
             Xóa

@@ -36,7 +36,7 @@ export default function ClubCardAdmin({ club, onDelete }) {
 
         {/* ID */}
         <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium">
-          {/* #{club._id.toString().padStart(3, "0")} */}
+          #{club._id.toString().slice(0, 3)}
         </div>
       </div>
 

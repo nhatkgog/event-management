@@ -11,13 +11,53 @@ import { formatDate, formatTime } from "../../../lib/utils";
 import QRCodeModal from "../../../components/QRCodeModal";
 import RegistrationTable from "../../../components/RegistrationTable";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
+import {forRoleOnly} from "@/lib/auth-utils";
 
-export default function AdminEventDetail() {
+export const getServerSideProps = forRoleOnly(["organizer", "admin"], async ({ req }) => {
+    try {
+        // Fetch all data in parallel for efficiency
+        const [eventRes, categoriesRes] = await Promise.all([
+            fetchWithInternalAccess(`/api/event/eventApi`),
+            fetchWithInternalAccess(`/api/category/categoryApi`)
+        ]);
+
+        // The user role fetching can be done here as well if needed, or separately.
+        // For now, we focus on events and categories.
+        const { userId } = getAuth(req);
+        const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+        const role = clerkUserRes.private_metadata?.role ?? null;
+
+        return {
+            props: {
+                initialEvents: eventRes.data || [],
+                initialCategories: categoriesRes.data || [],
+                role: role,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching data in getServerSideProps:", error);
+        // Return empty arrays as a fallback to prevent the page from crashing.
+        return {
+            props: {
+                initialEvents: [],
+                initialCategories: [],
+                role: null,
+                error: "Could not load data.",
+            },
+        };
+    }
+});
+
+export default function AdminEventDetail({ initialEvents, initialCategories, role, error }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const router = useRouter();
   const { id } = router.query;
 
   // Lấy event theo id
-  const event = events.find((e) => e._id === id);
+  const event = initialEvents.find((e) => e._id === id);
 
   // Modal + State
   const [openModal, setOpenModal] = useState(false);
@@ -79,6 +119,7 @@ export default function AdminEventDetail() {
     }
   };
   return (
+      <SelectedLayout>
     <section className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header & Actions */}
@@ -172,7 +213,7 @@ export default function AdminEventDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span>🏢 Tổ chức:</span>
-                  <span>{event.organizerId.name}</span>
+                  <span>{event.organizerId.fullName}</span>
                 </div>
               </div>
             </Card>
@@ -210,6 +251,7 @@ export default function AdminEventDetail() {
         onClose={() => setOpenModal(false)}
         onSubmit={handleUpdateEvent}
         loading={loading}
+        categories={initialCategories}
         initialData={selectedEvent}
       />
 
@@ -220,10 +262,11 @@ export default function AdminEventDetail() {
         qrUrl={qrUrl}
       />
     </section>
+      </SelectedLayout>
   );
 }
 
-AdminEventDetail.getLayout = function getLayout(page) {
-  const AdminLayout = require("@/components/AdminLayout").default;
-  return <AdminLayout>{page}</AdminLayout>;
-};
+// AdminEventDetail.getLayout = function getLayout(page) {
+//   const AdminLayout = require("@/components/AdminLayout").default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };

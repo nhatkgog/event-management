@@ -1,7 +1,26 @@
 import { useEffect } from "react";
 import ClubForm from "@/components/ClubForm";
 
-export default function ClubModal({ open, onClose, onSubmit, loading, initialData }) {
+// export async function getServerSideProps(context){
+//     const categoryRes = await fetchWithInternalAccess(`/api/category/categoryApi`);
+//     const category = categoryRes.success ? categoryRes.data : null;
+//     if (category.success === false) {
+//         return {
+//             notFound: true
+//         };
+//     }
+//     const { userId } = getAuth(context.req);
+//     const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+//     const role = clerkUserRes.private_metadata?.role ?? null;
+//
+//     return {
+//         props: {
+//             category, role
+//         }
+//     };
+// }
+
+export default function ClubModal({ open, onClose, onSubmit, loading, categories, initialData }) {
   // Khóa scroll khi mở modal
   useEffect(() => {
     if (open) {
@@ -43,6 +62,7 @@ export default function ClubModal({ open, onClose, onSubmit, loading, initialDat
             <ClubForm
               onSubmit={onSubmit}
               loading={loading}
+              categories={categories}
               initialData={initialData}
             />
           </div>
