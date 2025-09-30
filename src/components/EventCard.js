@@ -40,7 +40,7 @@ export default function EventCard({ event, showStatus = false }) {
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {event.categoryId.name}
+            {event.categoryId?.name}
           </span>
           {showStatus && (
             <span
@@ -72,7 +72,7 @@ export default function EventCard({ event, showStatus = false }) {
           <span className="text-sm text-gray-500">
             {event.capacity / 2}/{event.capacity} người tham gia
           </span>
-          <span className="text-sm text-gray-500">{event.organizerId.name}</span>
+          <span className="text-sm text-gray-500">{event.organizerId?.name}</span>
         </div>
 
         {/* Action Buttons */}

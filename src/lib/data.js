@@ -89,7 +89,7 @@ export const events = [
       "Những giây phút cùng thăng và hỗi hợp sáng sủa ra tiến đầu trường học thuật, sân chơi nghiên cứu khoa học tầm nhất mành dành cho sinh viên Trường F.",
     date: "2025-01-28",
     time: "19:30",
-    category: "ACADEMIC",
+    categoryId: {  name: "ACADEMIC" },
     status: "upcoming",
     participants: 0,
     maxParticipants: 100,
@@ -105,7 +105,7 @@ export const events = [
       "Thử thách bản thân với 48 giờ coding marathon cùng các developer hàng đầu. Giải thưởng hấp dẫn và cơ hội networking với các chuyên gia trong ngành.",
     date: "2025-02-15",
     time: "09:00",
-    category: "TECH",
+    categoryId: {  name: "TECH" },
     status: "upcoming",
     participants: 45,
     maxParticipants: 100,
@@ -121,7 +121,7 @@ export const events = [
       "Thử thách bản thân với 48 giờ coding marathon cùng các developer hàng đầu. Giải thưởng hấp dẫn và cơ hội networking với các chuyên gia trong ngành.",
     date: "2025-01-15",
     time: "08:00",
-    category: "TECH",
+    categoryId: {  name: "TECH" },
     status: "registered",
     participants: 28,
     maxParticipants: 30,
@@ -136,7 +136,7 @@ export const events = [
     description: "Tham gia bóng đá 11 người giữa các khoa, các câu lạc bộ. Cơ hội thể hiện tài năng và tình đoàn kết.",
     date: "2025-01-20",
     time: "15:00",
-    category: "SPORT",
+    categoryId: {name: "SPORT" },
     status: "registered",
     participants: 22,
     maxParticipants: 22,
@@ -152,7 +152,7 @@ export const events = [
       "Một đêm nhạc đầy cảm xúc với những giai điệu acoustic nhẹ nhàng. Không gian ấm cúng để gần gũi sau những ngày học tập căng thẳng.",
     date: "2025-01-25",
     time: "19:00",
-    category: "ART",
+    categoryId: {  name: "ART" },
     status: "registered",
     participants: 156,
     maxParticipants: 200,
@@ -168,7 +168,7 @@ export const events = [
       "Nâng cao kỹ năng giao tiếp, làm việc nhóm và thuyết trình. Được hướng dẫn bởi các chuyên gia và leader có kinh nghiệm.",
     date: "2025-02-01",
     time: "14:00",
-    category: "ACADEMIC",
+    categoryId: {  name: "ACADEMIC" },
     status: "registered",
     participants: 45,
     maxParticipants: 50,
@@ -184,7 +184,7 @@ export const events = [
       "Thử sức với các dự án AI thực tế. Tổ chức computer vision đến natural language processing. Cơ hội học hỏi từ các mentor công nghệ.",
     date: "2025-02-10",
     time: "10:00",
-    category: "TECH",
+    categoryId: {  name: "TECH" },
     status: "registered",
     participants: 32,
     maxParticipants: 40,
@@ -200,7 +200,7 @@ export const events = [
       "Trưng bày các tác phẩm nghệ thuật của sinh viên. Từ hội họa, nhiếp ảnh đến điêu khắc. Không gian sáng tạo và cảm hứng.",
     date: "2025-02-05",
     time: "16:00",
-    category: "ART",
+    categoryId: { name: "ART" },
     status: "registered",
     participants: 89,
     maxParticipants: 100,
@@ -209,7 +209,8 @@ export const events = [
     organizer: "CLB Mỹ thuật",
     tags: ["Nghệ thuật", "Triển lãm"],
   },
-]
+];
+
 
 export const testimonials = [
   {
@@ -259,38 +260,88 @@ export const schedules = [
 ];
 
 
+// lib/data.js
+
 export const registrations = [
   {
-    _id: "reg1",
+    _id: "8",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User A
     eventId: 1,
-    user: {
-      _id: "u1",
-      studentCode: "SE150001",
-      fullName: "Nguyễn Văn A",
-    },
+    status: "Registered",
+    registeredAt: "2025-01-10T08:30:00Z",
     isCheckedIn: true,
     isCheckedOut: false,
+    notes: "Đăng ký sớm.",
   },
   {
-    _id: "reg2",
-    eventId: 1,
-    user: {
-      _id: "u2",
-      studentCode: "SE150002",
-      fullName: "Trần Thị B",
-    },
+    _id: "7",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User A
+    eventId: 2,
+    status: "Attended",
+    registeredAt: "2025-01-12T09:00:00Z",
+    attendedAt: "2025-02-15T09:10:00Z",
+    isCheckedIn: true,
+    isCheckedOut: true,
+    notes: "Tham gia đầy đủ.",
+  },
+  {
+    _id: "6",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User B
+    eventId: 3,
+    status: "Cancelled",
+    registeredAt: "2025-01-05T10:00:00Z",
+    cancelledAt: "2025-01-10T12:00:00Z",
+    isCheckedIn: false,
+    isCheckedOut: false,
+    notes: "Bận lịch học, hủy đăng ký.",
+  },
+  {
+    _id: "5",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User B
+    eventId: 4,
+    status: "Attended",
+    registeredAt: "2025-01-06T15:00:00Z",
+    attendedAt: "2025-01-20T15:05:00Z",
+    isCheckedIn: true,
+    isCheckedOut: true,
+    notes: "Có mặt đúng giờ.",
+  },
+  {
+    _id: "4",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User C
+    eventId: 5,
+    status: "NoShow",
+    registeredAt: "2025-01-18T14:00:00Z",
+    isCheckedIn: false,
+    isCheckedOut: false,
+    notes: "Đăng ký nhưng không đến.",
+  },
+  {
+    _id: "3",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User C
+    eventId: 6,
+    status: "Registered",
+    registeredAt: "2025-01-22T11:00:00Z",
     isCheckedIn: false,
     isCheckedOut: false,
   },
   {
-    _id: "reg3",
-    eventId: 1,
-    user: {
-      _id: "u3",
-      studentCode: "SE150003",
-      fullName: "Phạm Văn C",
-    },
-    isCheckedIn: true,
-    isCheckedOut: true,
+    _id: "2",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User A
+    eventId: 7,
+    status: "Registered",
+    registeredAt: "2025-01-25T09:00:00Z",
+    isCheckedIn: false,
+    isCheckedOut: false,
+  },
+  {
+    _id: "1",
+    userId: "user_33FO9mAMBFzKlgctv1JALdQve3g", // User B
+    eventId: 8,
+    status: "Registered",
+    registeredAt: "2025-01-27T13:00:00Z",
+    isCheckedIn: false,
+    isCheckedOut: false,
   },
 ];
+
