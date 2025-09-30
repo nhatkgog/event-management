@@ -20,7 +20,7 @@ export async function getServerSideProps({ req }) {
 
 export default function AdminDashboard() {
   return (
-      <SelectedLayout title="Admin Dashboard - UniVibe">
+      // <SelectedLayout title="Admin Dashboard - UniVibe">
     <div>
       <SignedIn>
         {/* Hero */}
@@ -65,11 +65,11 @@ export default function AdminDashboard() {
         </div>
       </SignedOut>
     </div>
-      </SelectedLayout>
+      // </SelectedLayout>
   )
 }
 
-// AdminDashboard.getLayout = function getLayout(page) {
-//   const AdminLayout = require('@/components/AdminLayout').default;
-//   return <AdminLayout>{page}</AdminLayout>;
-// };
+AdminDashboard.getLayout = function getLayout(page) {
+  const AdminLayout = require('@/components/AdminLayout').default;
+  return <AdminLayout>{page}</AdminLayout>;
+};

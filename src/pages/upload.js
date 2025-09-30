@@ -2,6 +2,12 @@
 'use client';
 import { useRef, useState } from 'react';
 import {saveImage} from "@/lib/saveImage";
+import {withDevOnly} from "@/lib/devUtils";
+
+export const getServerSideProps = withDevOnly(async (context) => {
+    // your SSR logic here, e.g. fetch some test data
+    return { props: { } };
+});
 
 export default function UploadPage() {
     const inputFileRef = useRef(null);

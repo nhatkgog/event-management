@@ -24,7 +24,7 @@ const statusColors = {
 }
 
 export default function EventCard({ event, showStatus = false }) {
-  const categoryColor = categoryColors[event.category] || "bg-gray-500"
+  const categoryColor = categoryColors[event.categoryId.name] || "bg-gray-500"
   const statusColor = statusColors[event.status] || "bg-gray-100 text-gray-800"
 
   return (
@@ -40,7 +40,7 @@ export default function EventCard({ event, showStatus = false }) {
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {event.category}
+            {event.categoryId.name}
           </span>
           {showStatus && (
             <span
@@ -72,7 +72,7 @@ export default function EventCard({ event, showStatus = false }) {
           <span className="text-sm text-gray-500">
             {event.capacity / 2}/{event.capacity} người tham gia
           </span>
-          <span className="text-sm text-gray-500">{event.organizer}</span>
+          <span className="text-sm text-gray-500">{event.organizerId.name}</span>
         </div>
 
         {/* Action Buttons */}

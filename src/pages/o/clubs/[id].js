@@ -8,21 +8,40 @@ import Card from "../../../components/Card";
 import ClubModal from "../../../components/ClubModal";
 import { clubs } from "../../../lib/data";
 import EventGrid from "@/components/EventGrid";
-import RegistrationTable from "@/components/RegistrationTable"; 
+import RegistrationTable from "@/components/RegistrationTable";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
-export default function AdminClubDetail() {
+export async function getServerSideProps(context) {
+    const { id } = context.query;
+
+    // Fetch club data on the server
+    const res = await fetchWithInternalAccess(`/api/club/clubApi?id=${id}`, 'GET');
+    // If your API returns { success, data }:
+    const club = res.success ? res.data : null;
+
+    // Handle not‐found or error
+    if (club.success === false) {
+        return {
+            notFound: true
+        };
+    }
+
+    return {
+        props: {
+            club
+        }
+    };
+}
+
+export default function AdminClubDetail({club}) {
   const router = useRouter();
-  const { id } = router.query;
-
-  // Lấy club theo id (giả lập)
-  const club = clubs.find((c) => c.id === Number.parseInt(id));
 
   // State cho modal chỉnh sửa
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedClub, setSelectedClub] = useState(null);
 
-  if (!club) {
+  if (club.success === false) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-gray-600 mb-4">
@@ -38,11 +57,7 @@ export default function AdminClubDetail() {
   const handleUpdateClub = async (formData) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/clubs/${selectedClub.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetchWithInternalAccess(`/api/club/clubApi?id=${selectedClub.id}`, "PUT", formData);
       if (!response.ok) throw new Error("Cập nhật CLB thất bại");
       const updatedClub = await response.json();
       alert("✅ Cập nhật CLB thành công!");
@@ -63,7 +78,7 @@ export default function AdminClubDetail() {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold">{club.name}</h1>
-            <p className="text-gray-500">{club.category} • {club.members} thành viên</p>
+            <p className="text-gray-500">{club.categoryId.name} • {club.members} thành viên</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -81,14 +96,14 @@ export default function AdminClubDetail() {
         {/* Hero */}
         <div className="relative w-full h-64 rounded-xl overflow-hidden mb-8">
           <Image
-            src={club.image || "/placeholder.svg"}
+            src={club.imageUrl || "/placeholder.svg"}
             alt={club.name}
             fill
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40 flex items-end p-4">
             <span className="bg-white/20 text-white px-4 py-2 rounded-full text-sm">
-              {club.category}
+              {club.categoryId.name}
             </span>
           </div>
         </div>
@@ -101,7 +116,7 @@ export default function AdminClubDetail() {
             <Card className="p-6">
               <h2 className="text-xl font-bold mb-3">Giới thiệu CLB</h2>
               <p className="text-gray-700 leading-relaxed">
-                {club.fullDescription || club.description}
+                {club.description}
               </p>
             </Card>
 
@@ -112,7 +127,7 @@ export default function AdminClubDetail() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                   {club.membersList.map((m) => (
                     <div
-                      key={m.id}
+                      key={m._id}
                       className="flex flex-col items-center text-center"
                     >
                       <div className="w-20 h-20 rounded-full overflow-hidden mb-2 shadow">
@@ -159,7 +174,7 @@ export default function AdminClubDetail() {
             {/* Danh sách đăng ký (nếu có) */}
             <Card className="p-6">
               <h3 className="text-lg font-bold mb-4">Quản lý đăng ký</h3>
-              <RegistrationTable eventId={club.id} /> {/* có thể đổi tên prop phù hợp */}
+              <RegistrationTable eventId={club._id} /> {/* có thể đổi tên prop phù hợp */}
             </Card>
           </div>
           {/* Sự kiện của CLB */}
