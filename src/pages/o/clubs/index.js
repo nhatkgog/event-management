@@ -4,6 +4,7 @@ import { useState } from "react"
 import { clubs } from "@/lib/data"
 import ClubCardAdmin from "@/components/Admin/ClubCardAdmin"
 import ClubModal from "@/components/ClubModal"
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
 export default function ClubsPage() {
   const [clubList, setClubList] = useState(clubs)
@@ -15,11 +16,7 @@ export default function ClubsPage() {
     try {
       setLoading(true)
 
-      const response = await fetch("/api/clubs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
+      const response = await fetchWithInternalAccess("/api/club/clubApi", "POST", formData);
 
       if (!response.ok) throw new Error("Tạo CLB thất bại")
 
@@ -39,9 +36,7 @@ export default function ClubsPage() {
   // ❌ Xóa CLB
   const handleDeleteClub = async (id) => {
     try {
-      const response = await fetch(`/api/clubs/${id}`, {
-        method: "DELETE",
-      })
+      const response = await fetch(`/api/club/clubApi?id=${id}`, "DELETE");
 
       if (!response.ok) throw new Error("Xóa CLB thất bại")
 
@@ -72,7 +67,7 @@ export default function ClubsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {clubList.map((club) => (
               <ClubCardAdmin
-                key={club.id}
+                key={club._id}
                 club={club}
                 onDelete={handleDeleteClub}
               />

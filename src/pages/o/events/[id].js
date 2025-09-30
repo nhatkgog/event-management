@@ -10,13 +10,14 @@ import { events, schedules } from "../../../lib/data";
 import { formatDate, formatTime } from "../../../lib/utils";
 import QRCodeModal from "../../../components/QRCodeModal";
 import RegistrationTable from "../../../components/RegistrationTable";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
 export default function AdminEventDetail() {
   const router = useRouter();
   const { id } = router.query;
 
   // Lấy event theo id
-  const event = events.find((e) => e.id === Number.parseInt(id));
+  const event = events.find((e) => e._id === id);
 
   // Modal + State
   const [openModal, setOpenModal] = useState(false);
@@ -29,11 +30,7 @@ export default function AdminEventDetail() {
   const handleUpdateEvent = async (formData) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/events/${selectedEvent.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetchWithInternalAccess(`/api/event/eventApi?id=${selectedEvent.id}`, "PUT", formData);
       if (!response.ok) throw new Error("Cập nhật sự kiện thất bại");
 
       const updatedEvent = await response.json();
@@ -63,7 +60,7 @@ export default function AdminEventDetail() {
   }
 
   const eventSchedules = schedules
-    .filter((s) => s.eventId === event.id)
+    .filter((s) => s.eventId === event._id)
     .sort((a, b) => a.order - b.order);
 
   const handleGenerateQr = async (type) => {
@@ -89,7 +86,7 @@ export default function AdminEventDetail() {
           <div>
             <h1 className="text-3xl font-bold">{event.title}</h1>
             <p className="text-gray-500">
-              {formatDate(event.date)} • {formatTime(event.time)}
+              {formatDate(event.startAt)} • {formatTime(event.startAt)}
             </p>
           </div>
           <div className="flex gap-3">
@@ -126,14 +123,14 @@ export default function AdminEventDetail() {
             {/* Event Cover */}
             <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-sm">
               <Image
-                src={event.image || "/placeholder.svg"}
+                src={event.imageUrl || "/placeholder.svg"}
                 alt={event.title}
                 fill
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-black/40 flex items-end p-4">
                 <span className="bg-white/20 text-white px-4 py-2 rounded-full text-sm">
-                  {event.category}
+                  {event.categoryId.name}
                 </span>
               </div>
             </div>
@@ -147,7 +144,7 @@ export default function AdminEventDetail() {
             </Card>
 
             {/* Registration List */}
-            <RegistrationTable eventId={event.id} />
+            <RegistrationTable eventId={event._id} />
           </div>
 
           {/* Right: Sidebar */}
@@ -157,11 +154,11 @@ export default function AdminEventDetail() {
               <div className="space-y-3 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <span>📅 Ngày tổ chức:</span>
-                  <span>{formatDate(event.date)}</span>
+                  <span>{formatDate(event.startAt)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>⏰ Thời gian:</span>
-                  <span>{formatTime(event.time)}</span>
+                  <span>{formatTime(event.startAt)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>📍 Địa điểm:</span>
@@ -170,12 +167,12 @@ export default function AdminEventDetail() {
                 <div className="flex justify-between">
                   <span>👥 Tham gia:</span>
                   <span>
-                    {event.participants}/{event.maxParticipants}
+                    {event.capacity/2}/{event.capacity}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>🏢 Tổ chức:</span>
-                  <span>{event.organizer}</span>
+                  <span>{event.organizerId.name}</span>
                 </div>
               </div>
             </Card>
@@ -186,7 +183,7 @@ export default function AdminEventDetail() {
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                   {eventSchedules.map((item) => (
                     <div
-                      key={item.id}
+                      key={item._id}
                       className="flex items-start gap-3 p-3 bg-gray-100 rounded-lg"
                     >
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2" />

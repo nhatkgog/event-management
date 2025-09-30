@@ -4,6 +4,7 @@ import { useState } from "react";
 import { events } from "../../../lib/data";
 import EventCardAdmin from "../../../components/Admin/EventCardAdmin";
 import EventModal from "../../../components/EventModal";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
 export default function EventsPage() {
   const [eventList, setEventList] = useState(events);
@@ -14,11 +15,7 @@ export default function EventsPage() {
     try {
       setLoading(true);
 
-      const response = await fetch("/api/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetchWithInternalAccess("/api/event/eventApi", 'POST', formData);
 
       if (!response.ok) {
         throw new Error("Tạo sự kiện thất bại");
@@ -40,9 +37,7 @@ export default function EventsPage() {
 
   const handleDeleteEvent = async (id) => {
     try {
-      const response = await fetch(`/api/events/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetchWithInternalAccess(`/api/event/eventApi?id=${id}`, 'DELETE');
 
       if (!response.ok) throw new Error("Xóa sự kiện thất bại");
 

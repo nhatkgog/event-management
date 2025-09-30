@@ -19,7 +19,7 @@ export default function ClubCardAdmin({ club, onDelete }) {
       {/* Ảnh và category */}
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={club.image || "/placeholder.svg"}
+          src={club.imageUrl || "/placeholder.svg"}
           alt={club.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -30,13 +30,13 @@ export default function ClubCardAdmin({ club, onDelete }) {
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {club.category}
+            {club.categoryId.name}
           </span>
         </div>
 
         {/* ID */}
         <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium">
-          #{club.id.toString().padStart(3, "0")}
+          #{club._id.toString().padStart(3, "0")}
         </div>
       </div>
 
@@ -67,7 +67,7 @@ export default function ClubCardAdmin({ club, onDelete }) {
 
         {/* Action Buttons */}
         <div className="mt-auto flex gap-2">
-          <Link href={`/o/clubs/${club.id}`} className="flex-1">
+          <Link href={`/o/clubs/${club._id}`} className="flex-1">
             <Button
               variant="outline"
               size="sm"
@@ -83,7 +83,7 @@ export default function ClubCardAdmin({ club, onDelete }) {
             onClick={() =>
               onDelete &&
               confirm("Bạn có chắc muốn xóa câu lạc bộ này?") &&
-              onDelete(club.id)
+              onDelete(club._id)
             }
           >
             Xóa
