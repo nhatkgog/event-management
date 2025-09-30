@@ -3,19 +3,52 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { SignedIn, UserButton } from "@clerk/nextjs";
-import { useState } from "react";
+import { SignedIn, UserButton, useAuth } from "@clerk/nextjs";
+import {useEffect, useState} from "react";
 import {
   Calendar,
   Users,
   ClipboardCheck,
   BarChart3,
   Shield,
-} from "lucide-react"; // icons
+} from "lucide-react";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {useDbUser} from "@/contexts/UserContext"; // icons
 
 export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+    const { isSignedIn } = useAuth();
+    const { setDbUser } = useDbUser();
+
+    useEffect(() => {
+        // We only want to sync the user if they are logged in.
+        if (isSignedIn) {
+            // Use an Immediately Invoked Function Expression (IIFE) to run the async logic.
+            (async () => {
+                try {
+                    const response = await fetchWithInternalAccess('/api/auth/syncUser', 'POST');
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // On success, place the user's DB profile into the context
+                        setDbUser(data.data);
+                        console.log('User profile synced and set in context.');
+                    } else {
+                        console.error('Failed to sync user:', response.status);
+                        setDbUser(null); // Clear profile on failure
+                    }
+
+                } catch (error) {
+                    console.error('An error occurred while syncing the user:', error);
+                    setDbUser(null); // Clear profile on error
+                }
+            })(); // The extra parentheses here immediately call the function.
+        } else {
+            // If the user signs out, clear their profile from the context
+            setDbUser(null);
+        }
+    }, [isSignedIn, setDbUser]); // The dependency array ensures this runs only when the sign-in state changes.
 
   const menuItems = [
     {

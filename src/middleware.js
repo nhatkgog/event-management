@@ -18,30 +18,33 @@ import {NextResponse} from "next/server";
 //   return NextResponse.next()
 // }
 
-const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/clubs(.*)', '/events(.*)', '/forgot-password(.*)', '']);
+const isProtectedRoute = createRouteMatcher(['/clubs(.*)', '/events(.*)', '']);
 
-const isPublicRoutes = createRouteMatcher(['/login(.*)', '/'])
+const isPublicRoutes = createRouteMatcher(['/login', '/'])
 
-const isPublicRoute = createRouteMatcher(['/login(.*)', '/forgot-password(.*)']);
+const isPublicRoute = createRouteMatcher(['/login', '/forgot-password']);
 
 export default clerkMiddleware(async (auth, req) => {
-    const { isAuthenticated, redirectToSignIn, isSignedIn } = await auth()
+    const { isAuthenticated } = await auth();
 
-
-    if (isProtectedRoute(req) && process.env.NODE_ENV !== 'development') await auth.protect();
-
-    // const { isAuthenticated, redirectToSignIn } = await auth()
-    // if (!isAuthenticated && isProtectedRoute(req)) {
-    //     // Add custom logic to run before redirecting
-    //     return redirectToSignIn()
-    // }
+    if (isProtectedRoute(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
+        return auth.protect(); // redirect to sign-in
+    }
 
     if (!isPublicRoutes(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
-        await auth.protect();
+        return new NextResponse(null, { status: 404 });
     }
+
     if (isPublicRoute(req) && isAuthenticated && process.env.NODE_ENV !== 'development') {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL('/', req.url));
+        // return new NextResponse(null, { status: 404 });
     }
+
+    if (!isPublicRoute(req) && !isProtectedRoute(req) && !isPublicRoutes(req) && process.env.NODE_ENV !== 'development') {
+        return new NextResponse(null, { status: 404 });
+    }
+
+    return NextResponse.next();
 });
 
 export const config = {

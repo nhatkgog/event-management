@@ -1,5 +1,6 @@
 // pages/api/upload.js
 import {saveImage} from "@/lib/saveImage";
+import {internalAccess} from "@/utils/internalAccess";
 
 export const config = {
     api: {
@@ -7,7 +8,7 @@ export const config = {
     },
 };
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
         return res.status(405).end('Method Not Allowed');
@@ -32,3 +33,5 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: err?.message || 'Upload failed' });
     }
 }
+
+export default internalAccess(handler);

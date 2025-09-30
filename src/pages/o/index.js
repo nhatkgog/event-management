@@ -6,9 +6,21 @@ import StatGrid from "@/components/Admin/StatGrid"
 import NotificationPanel from "@/components/NotificationPanel"
 import UpcomingEvents from "@/components/UpcomingEvents"
 import QuickActions from "@/components/Admin/QuickActions"
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
 
 export default function AdminDashboard() {
   return (
+      <SelectedLayout title="Admin Dashboard - UniVibe">
     <div>
       <SignedIn>
         {/* Hero */}
@@ -53,10 +65,11 @@ export default function AdminDashboard() {
         </div>
       </SignedOut>
     </div>
+      </SelectedLayout>
   )
 }
 
-AdminDashboard.getLayout = function getLayout(page) {
-  const AdminLayout = require('@/components/AdminLayout').default;
-  return <AdminLayout>{page}</AdminLayout>;
-};
+// AdminDashboard.getLayout = function getLayout(page) {
+//   const AdminLayout = require('@/components/AdminLayout').default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };

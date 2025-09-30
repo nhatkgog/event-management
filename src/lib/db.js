@@ -58,6 +58,18 @@ async function dbConnect() {
   return cached.conn;
 }
 
+/**
+ * Disconnects from the database and resets the cache.
+ */
+export async function dbDisconnect() {
+  if (cached.conn) {
+    await mongoose.disconnect();
+    console.log("MongoDB disconnected.");
+  }
+  cached.conn = null;
+  cached.promise = null;
+}
+
 // --- Định nghĩa Schema ---
 const RoleSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true }
@@ -82,6 +94,7 @@ const ClubSchema = new mongoose.Schema({
     name:        { type: String, required: true, unique: true },
     description: String,
     imageUrl: { type: String },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     // Users who can create/manage events for this club
     organizerIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     // Optional: all members of the club
@@ -155,6 +168,17 @@ const NotificationSchema = new mongoose.Schema({
 
 NotificationSchema.index({ receiverId: 1 });
 
+// ---------------- Schedule Schema ----------------
+const ScheduleSchema = new mongoose.Schema({
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
+    title: { type: String, required: true, maxlength: 255 },
+    // Option A: full JS Date
+    // time: { type: Date, required: true },
+
+    // Option B: time-only string (e.g. "08:30" or "08:30–10:00")
+    time: { type: String, required: true, maxlength: 50, match: /^([01]\d|2[0-3]):([0-5]\d)(–([01]\d|2[0-3]):([0-5]\d))?$/ }
+}, { timestamps: true });
+
 // ————— GUARD & EXPORT MODELS —————
 // In dev, Next.js hot‐reload can re‐import this file multiple times.
 // We check mongoose.models first to avoid OverwriteModelError.
@@ -166,10 +190,54 @@ export const ClubMembership = mongoose.models.ClubMembership || mongoose.model('
 export const Event          = mongoose.models.Event          || mongoose.model("Event", EventSchema);
 export const Registration   = mongoose.models.Registration   || mongoose.model("Registration", RegistrationSchema);
 export const Notification   = mongoose.models.Notification   || mongoose.model("Notification", NotificationSchema);
+export const Schedule       = mongoose.models.Schedule       || mongoose.model('Schedule', ScheduleSchema);
 
 export default dbConnect;
 
+export async function migrateAddFields(Model, fields = {}) {
+    if (!Model || typeof Model.updateMany !== 'function') {
+        throw new Error('First argument must be a Mongoose model');
+    }
 
+    const summary = { applied: {}, totalModified: 0 };
 
+    for (const [field, descriptor] of Object.entries(fields)) {
+        // remove-case when caller passed { remove: true }
+        if (descriptor && typeof descriptor === 'object' && descriptor.remove === true) {
+            const filter = { [field]: { $exists: true } };
+            const update = { $unset: { [field]: '' } };
+            const res = await Model.updateMany(filter, update);
+            const modified = res.modifiedCount ?? res.nModified ?? 0;
+            summary.applied[field] = { action: 'unset', modified };
+            summary.totalModified += modified;
+            continue;
+        }
 
+        // set-case: descriptor is the default value to set for missing docs
+        const defaultValue = descriptor;
+        const filter = { [field]: { $exists: false } };
+        const update = { $set: { [field]: defaultValue } };
+        const res = await Model.updateMany(filter, update);
+        const modified = res.modifiedCount ?? res.nModified ?? 0;
+        summary.applied[field] = { action: 'set', modified };
+        summary.totalModified += modified;
+    }
 
+    return summary;
+}
+
+//Example of update database
+/*const result = await migrateAddFields(User, {
+    isAdmin: false,
+    profileComplete: false,
+    lastSeenAt: null,
+    legacyFlag: { remove: true },
+});*/
+
+/*
+const result = await Club.updateMany(
+    { categoryId: { $exists: false } },
+    { $set: { categoryId: '68dab8a303e1c238245101c0' } }
+);
+console.error("Migration result:" + JSON.stringify(req.body, null, 2));
+console.error('User migration result:', result);*/
