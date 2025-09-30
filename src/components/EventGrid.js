@@ -15,7 +15,7 @@ export default function EventGrid({
   title = "ĐỪNG BỎ LỠ CÁC SỰ KIỆN MỚI NHẤT!",
   fullWidth = true,
   columns = 4, 
-  hidden=false// 👈 thêm prop số cột
+  hidden=false
 }) {
   return (
     <section className="py-16">
