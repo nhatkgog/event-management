@@ -7,6 +7,7 @@ import { clubs } from "@/lib/data"
 import {getAuth} from "@clerk/nextjs/server";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
 import AdminLayout from "@/components/AdminLayout";
+import Layout from "../../components/layout/Layout";
 
 export async function getServerSideProps({ req }) {
 
