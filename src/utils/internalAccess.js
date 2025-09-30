@@ -1,4 +1,4 @@
-export const withInternalAccess = (handler) => async (req, res) => {
+export const internalAccess = (handler) => async (req, res) => {
     // Check if the application is running in the development environment
     if (process.env.NODE_ENV === 'development') {
         // In development, simply execute the original handler and return
@@ -26,17 +26,22 @@ export const withInternalAccess = (handler) => async (req, res) => {
     return handler(req, res);
 };
 
-export const fetchWithInternalAccess = async (url) => {
+export const fetchWithInternalAccess = async (url, method = 'GET', body) => {
     const secretKey = process.env.SERVER_API_KEY;
     const baseUrl = process.env.NODE_ENV === 'development'
         ? 'http://localhost:3000'
-        : process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'YOUR_PROD_URL';
+        : process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : `${process.env.PRODUCTION_URL}`;
 
-    return (await fetch(`${baseUrl}${url}`, {
-        method: 'GET',
+    const options = {
+        method: `${method}`,
         headers: {
             'X-Internal-Secret': secretKey, // <-- Essential secret included on the server
             'Content-Type': 'application/json',
         },
-    })).json();
+    };
+    if (body){
+        options.body = JSON.stringify(body);
+    }
+
+    return (await fetch(`${baseUrl}${url}`, options)).json();
 }

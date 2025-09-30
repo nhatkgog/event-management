@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import Button from "./Button"
 import Card from "./Card"
-import { formatDate } from "../lib/utils"
+import { formatDate, formatTime } from "../lib/utils.js"
 
 const categoryColors = {
   TECH: "bg-blue-500",
@@ -31,7 +31,7 @@ export default function EventCard({ event, showStatus = false }) {
     <Card className="group hover:shadow-lg transition-all duration-300 flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={event.image || "/placeholder.svg"}
+          src={event.imageUrl || "/placeholder.svg"}
           alt={event.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -55,9 +55,9 @@ export default function EventCard({ event, showStatus = false }) {
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">
-            {formatDate(event.date)}
+            {formatDate(event.startAt)}
           </span>
-          <span className="text-sm text-gray-500">{event.time}</span>
+          <span className="text-sm text-gray-500">{formatTime(event.startAt)}</span>
         </div>
 
         <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-red-500 transition-colors">
@@ -70,19 +70,19 @@ export default function EventCard({ event, showStatus = false }) {
 
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-gray-500">
-            {event.participants}/{event.maxParticipants} người tham gia
+            {event.capacity / 2}/{event.capacity} người tham gia
           </span>
           <span className="text-sm text-gray-500">{event.organizer}</span>
         </div>
 
         {/* Action Buttons */}
         <div className="mt-auto flex gap-2">
-          <Link href={`/events/${event.id}/register`} className="flex-1">
+          <Link href={`/events/${event._id}/register`} className="flex-1">
             <Button size="sm" className="w-full">
               Đăng ký
             </Button>
           </Link>
-          <Link href={`/events/${event.id}`} className="flex-1">
+          <Link href={`/events/${event._id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full">
               Chi tiết
             </Button>

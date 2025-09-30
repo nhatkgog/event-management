@@ -4,6 +4,19 @@ import { useState, useMemo } from "react"
 import ClubCard from "../../components/ClubCard"
 import Button from "../../components/Button"
 import { clubs } from "@/lib/data"
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "../../components/layout/Layout";
+
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
 
 // Extended clubs data to match the design
 const extendedClubs = [
@@ -85,7 +98,8 @@ const categories = [
   { id: "CULTURE", label: "Văn hóa", color: "bg-teal-500" },
 ]
 
-export default function Index() {
+export default function Index({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -112,7 +126,7 @@ export default function Index() {
   }, [selectedCategory, searchQuery])
 
   return (
-    // <Layout title="Câu lạc bộ sinh viên - UniVibe">
+    <SelectedLayout title="Câu lạc bộ sinh viên - UniVibe">
       <div>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-red-500 to-orange-400 text-white py-16">
@@ -226,6 +240,6 @@ export default function Index() {
         </div>
       </section>
       </div>
-    // </Layout>
+    </SelectedLayout>
   )
 }

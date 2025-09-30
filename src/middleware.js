@@ -18,30 +18,35 @@ import {NextResponse} from "next/server";
 //   return NextResponse.next()
 // }
 
-const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/clubs(.*)', '/events(.*)', '/forgot-password(.*)', '']);
+const isProtectedRoute = createRouteMatcher(['/o(.*)', '/notifications']);
 
-const isPublicRoutes = createRouteMatcher(['/login(.*)', '/'])
+const isPublicRoutes = createRouteMatcher(['/login', '/clubs(.*)', '/events(.*)', '/'])
 
-const isPublicRoute = createRouteMatcher(['/login(.*)', '/forgot-password(.*)']);
+const isPublicRoute = createRouteMatcher(['/login', '/forgot-password']);
 
 export default clerkMiddleware(async (auth, req) => {
-    const { isAuthenticated, redirectToSignIn, isSignedIn } = await auth()
 
+    const { isAuthenticated } = await auth();
 
-    if (isProtectedRoute(req) && process.env.NODE_ENV !== 'development') await auth.protect();
+    if (isProtectedRoute(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
+        return auth.protect(); // redirect to sign-in
+    }
 
-    // const { isAuthenticated, redirectToSignIn } = await auth()
-    // if (!isAuthenticated && isProtectedRoute(req)) {
-    //     // Add custom logic to run before redirecting
-    //     return redirectToSignIn()
+    // if (!isPublicRoutes(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
+    //     return new NextResponse(null, { ok: false, status: 404 });
     // }
 
-    if (!isPublicRoutes(req) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
-        await auth.protect();
-    }
     if (isPublicRoute(req) && isAuthenticated && process.env.NODE_ENV !== 'development') {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL('/', req.url));
+        // return new NextResponse(null, { ok: false, status: 404 });
     }
+
+    // if (!isPublicRoute(req) && !isProtectedRoute(req) && !isPublicRoutes(req) && process.env.NODE_ENV !== 'development') {
+    //     return new NextResponse(null, { ok: false, status: 404 });
+        // return NextResponse.redirect(new URL('/', req.url));
+    // }
+
+    return NextResponse.next();
 });
 
 export const config = {

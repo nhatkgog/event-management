@@ -4,9 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useSignIn } from "@clerk/nextjs";
 import Image from "next/image";
+import Layout from "../../components/layout/Layout";
 import Link from "next/link";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
-export default function SignInPage() {
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
+
+export default function SignInPage({ role }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
+
   const router = useRouter();
   const { isLoaded, signIn, setActive } = useSignIn();
 
@@ -29,16 +44,17 @@ export default function SignInPage() {
         password,
       });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/");
-      }
-    } catch (err) {
-      setError(err.errors?.[0]?.message || "Đăng nhập thất bại");
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (result.status === "complete") {
+                // Activate the session and redirect
+                await setActive({ session: result.createdSessionId });
+                await router.push("/");
+            }
+        } catch (err) {
+            setError(err.errors?.[0]?.message || "Đăng nhập thất bại");
+        } finally {
+            setLoading(false);
+        }
+    };
 
   const handleGoogleSignIn = async () => {
     await signIn.authenticateWithRedirect({
@@ -48,6 +64,7 @@ export default function SignInPage() {
   };
 
   return (
+      <SelectedLayout>
     <div className="min-h-screen flex">
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-16 bg-white">
@@ -97,24 +114,24 @@ export default function SignInPage() {
           </form>
 
           {/* Extra links */}
-          <div className="mt-4 text-sm text-center space-y-2">
-            <p>
-              <Link
-                href="/register"
-                className="text-red-500 hover:text-red-600 font-medium"
-              >
-                Đăng ký tài khoản
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="/login/forgot-password"
-                className="text-red-500 hover:text-red-600 font-medium"
-              >
-                Quên mật khẩu hoặc tên tài khoản?
-              </Link>
-            </p>
-          </div>
+          {/*<div className="mt-4 text-sm text-center space-y-2">*/}
+          {/*  <p>*/}
+          {/*    <Link*/}
+          {/*      href="/register"*/}
+          {/*      className="text-red-500 hover:text-red-600 font-medium"*/}
+          {/*    >*/}
+          {/*      Đăng ký tài khoản*/}
+          {/*    </Link>*/}
+          {/*  </p>*/}
+          {/*  <p>*/}
+          {/*    <Link*/}
+          {/*      href="/login/forgot-password"*/}
+          {/*      className="text-red-500 hover:text-red-600 font-medium"*/}
+          {/*    >*/}
+          {/*      Quên mật khẩu hoặc tên tài khoản?*/}
+          {/*    </Link>*/}
+          {/*  </p>*/}
+          {/*</div>*/}
 
           <div className="text-center text-gray-600 text-sm mt-6 mb-3">
             Hoặc đăng nhập bằng tài khoản Google
@@ -165,6 +182,7 @@ export default function SignInPage() {
   />
 </div>
     </div>
+      </SelectedLayout>
   );
 }
 

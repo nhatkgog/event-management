@@ -1,4 +1,4 @@
-import dbConnect, {Club, dbDisconnect, migrateAddFields} from '../../../lib/db';
+import dbConnect, { Role } from '../../../lib/db';
 import { internalAccess } from '../../../utils/internalAccess';
 
 async function handler(req, res) {
@@ -12,14 +12,14 @@ async function handler(req, res) {
         const { id, ...filters } = req.query;
 
         if (id) {
-          const club = await Club.findById(id).populate('categoryId');
-          if (!club) {
-            return res.status(404).json({ success: false, message: 'Club not found' });
+          const role = await Role.findById(id);
+          if (!role) {
+            return res.status(404).json({ success: false, message: 'Role not found' });
           }
-          return res.status(200).json({ success: true, data: club });
+          return res.status(200).json({ success: true, data: role });
         } else {
-          const clubs = await Club.find(filters).populate('categoryId');
-          return res.status(200).json({ success: true, data: clubs });
+          const roles = await Role.find(filters);
+          return res.status(200).json({ success: true, data: roles });
         }
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
@@ -27,11 +27,12 @@ async function handler(req, res) {
 
     case 'POST':
       try {
-        const club = await Club.create(req.body);
-
-        await club.populate('categoryId');
-        return res.status(201).json({ success: true, data: club });
+        const role = await Role.create(req.body);
+        return res.status(201).json({ success: true, data: role });
       } catch (error) {
+        if (error.code === 11000) {
+          return res.status(409).json({ success: false, message: 'A role with that name already exists.' });
+        }
         return res.status(400).json({ success: false, message: error.message });
       }
 
@@ -39,19 +40,16 @@ async function handler(req, res) {
       try {
         const { id } = req.query;
         if (!id) {
-          return res.status(400).json({ success: false, message: 'Club ID is required' });
+          return res.status(400).json({ success: false, message: 'Role ID is required' });
         }
-        const club = await Club.findByIdAndUpdate(id, req.body, {
+        const role = await Role.findByIdAndUpdate(id, req.body, {
           new: true,
           runValidators: true,
         });
-
-        await club.populate('categoryId');
-
-        if (!club) {
-          return res.status(404).json({ success: false, message: 'Club not found' });
+        if (!role) {
+          return res.status(404).json({ success: false, message: 'Role not found' });
         }
-        return res.status(200).json({ success: true, data: club });
+        return res.status(200).json({ success: true, data: role });
       } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
       }
@@ -60,11 +58,11 @@ async function handler(req, res) {
       try {
         const { id } = req.query;
         if (!id) {
-          return res.status(400).json({ success: false, message: 'Club ID is required' });
+          return res.status(400).json({ success: false, message: 'Role ID is required' });
         }
-        const deletedClub = await Club.deleteOne({ _id: id });
-        if (deletedClub.deletedCount === 0) {
-          return res.status(404).json({ success: false, message: 'Club not found' });
+        const deletedRole = await Role.deleteOne({ _id: id });
+        if (deletedRole.deletedCount === 0) {
+          return res.status(404).json({ success: false, message: 'Role not found' });
         }
         return res.status(200).json({ success: true, data: {} });
       } catch (error) {
