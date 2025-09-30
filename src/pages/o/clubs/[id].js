@@ -1,39 +1,55 @@
-"use client";
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Button from "../../../components/Button";
 import Card from "../../../components/Card";
 import ClubModal from "../../../components/ClubModal";
-import { clubs } from "../../../lib/data";
+// import { clubs } from "../../../lib/data";
 import EventGrid from "@/components/EventGrid";
 import RegistrationTable from "@/components/RegistrationTable";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
+import {forRoleOnly} from "@/lib/auth-utils";
 
-export async function getServerSideProps(context) {
+export const getServerSideProps = forRoleOnly("admin", async (context) => {
     const { id } = context.query;
 
     // Fetch club data on the server
-    const res = await fetchWithInternalAccess(`/api/club/clubApi?id=${id}`, 'GET');
-    // If your API returns { success, data }:
-    const club = res.success ? res.data : null;
+    const clubRes = await fetchWithInternalAccess(`/api/club/clubApi?id=${id}`, 'GET');
 
-    // Handle not‐found or error
-    if (club.success === false) {
+    const categoryRes = await fetchWithInternalAccess(`/api/category/categoryApi`);
+
+    const category = categoryRes.success ? categoryRes.data : null;
+
+    if (!category) {
+        return {
+            notFound: true
+        };
+    }
+    // If your API returns { success, data }:
+    const club = clubRes.success ? clubRes.data : null;
+
+    if (!club) {
         return {
             notFound: true
         };
     }
 
+    const { userId } = getAuth(context.req);
+    const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = clerkUserRes.private_metadata?.role ?? null;
+
     return {
         props: {
-            club
+            club, category, role
         }
     };
-}
+});
 
-export default function AdminClubDetail({club}) {
+export default function AdminClubDetail({club, category, role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const router = useRouter();
 
   // State cho modal chỉnh sửa
@@ -41,7 +57,7 @@ export default function AdminClubDetail({club}) {
   const [loading, setLoading] = useState(false);
   const [selectedClub, setSelectedClub] = useState(null);
 
-  if (club.success === false) {
+  if (!club) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-gray-600 mb-4">
@@ -72,6 +88,7 @@ export default function AdminClubDetail({club}) {
   };
 
   return (
+      <SelectedLayout>
     <section className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header & Actions */}
@@ -200,13 +217,15 @@ export default function AdminClubDetail({club}) {
         onClose={() => setOpenModal(false)}
         onSubmit={handleUpdateClub}
         loading={loading}
+        categories={category}
         initialData={selectedClub}
       />
     </section>
+      </SelectedLayout>
   );
 }
 
-AdminClubDetail.getLayout = function getLayout(page) {
-  const AdminLayout = require("@/components/AdminLayout").default;
-  return <AdminLayout>{page}</AdminLayout>;
-};
+// AdminClubDetail.getLayout = function getLayout(page) {
+//   const AdminLayout = require("@/components/AdminLayout").default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };

@@ -1,13 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { events } from "../../../lib/data";
 import EventCardAdmin from "../../../components/Admin/EventCardAdmin";
 import EventModal from "../../../components/EventModal";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
+import {forRoleOnly} from "@/lib/auth-utils";
 
-export default function EventsPage() {
-  const [eventList, setEventList] = useState(events);
+export const getServerSideProps = forRoleOnly(["organizer", "admin"], async ({ req }) => {
+    try {
+        // Fetch all data in parallel for efficiency
+        const [eventRes, categoriesRes] = await Promise.all([
+            fetchWithInternalAccess(`/api/event/eventApi`),
+            fetchWithInternalAccess(`/api/category/categoryApi`)
+        ]);
+
+        // The user role fetching can be done here as well if needed, or separately.
+        // For now, we focus on events and categories.
+        const { userId } = getAuth(req);
+        const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+        const role = clerkUserRes.private_metadata?.role ?? null;
+
+        return {
+            props: {
+                initialEvents: eventRes.data || [],
+                initialCategories: categoriesRes.data || [],
+                role: role,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching data in getServerSideProps:", error);
+        // Return empty arrays as a fallback to prevent the page from crashing.
+        return {
+            props: {
+                initialEvents: [],
+                initialCategories: [],
+                role: null,
+                error: "Could not load data.",
+            },
+        };
+    }
+});
+
+export default function EventsPage({ initialEvents, initialCategories, role, error }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
+  const [eventList, setEventList] = useState(initialEvents);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -15,13 +54,11 @@ export default function EventsPage() {
     try {
       setLoading(true);
 
-      const response = await fetchWithInternalAccess("/api/event/eventApi", 'POST', formData);
+      const newEvent = await fetchWithInternalAccess("/api/event/eventApi", 'POST', formData);
 
-      if (!response.ok) {
+      if (newEvent.success === false) {
         throw new Error("Tạo sự kiện thất bại");
       }
-
-      const newEvent = await response.json();
 
       setEventList((prev) => [...prev, newEvent]);
 
@@ -51,6 +88,7 @@ export default function EventsPage() {
   };
 
   return (
+      <SelectedLayout>
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Danh sách sự kiện</h1>
@@ -67,7 +105,7 @@ export default function EventsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {eventList.map((event) => (
               <EventCardAdmin
-                key={event.id}
+                key={event._id}
                 event={event}
                 showStatus={true}
                 onDelete={handleDeleteEvent}
@@ -101,13 +139,15 @@ export default function EventsPage() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateEvent}
+        categories={initialCategories}
         loading={loading}
       />
     </div>
+          </SelectedLayout>
   );
 }
 
-EventsPage.getLayout = function getLayout(page) {
-  const AdminLayout = require("@/components/AdminLayout").default;
-  return <AdminLayout>{page}</AdminLayout>;
-};
+// EventsPage.getLayout = function getLayout(page) {
+//   const AdminLayout = require("@/components/AdminLayout").default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };

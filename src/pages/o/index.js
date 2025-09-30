@@ -14,15 +14,16 @@ import {getAuth} from "@clerk/nextjs/server";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
 import AdminLayout from "@/components/AdminLayout";
 import Layout from "@/components/layout/Layout";
+import {forRoleOnly} from "@/lib/auth-utils";
 
-export async function getServerSideProps({ req }) {
+export const getServerSideProps = forRoleOnly("admin", async ({ req }) => {
 
     const { userId } = getAuth(req);
     const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
     const role = res.private_metadata?.role ?? null;
 
     return { props: { role } };
-}
+});
 
 export default function AdminDashboard({role}) {
     const SelectedLayout = role === "admin" ? AdminLayout : Layout;

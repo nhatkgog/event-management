@@ -64,7 +64,7 @@ export default function SignInPage({ role }) {
   };
 
   return (
-      <SelectedLayout>
+      // <SelectedLayout>
     <div className="min-h-screen flex">
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-16 bg-white">
@@ -182,7 +182,7 @@ export default function SignInPage({ role }) {
   />
 </div>
     </div>
-      </SelectedLayout>
+      // </SelectedLayout>
   );
 }
 

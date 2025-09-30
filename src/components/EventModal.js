@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import EventForm from "@/components/EventForm";
 
-export default function EventModal({ open, onClose, onSubmit, loading, initialData }) {
+export default function EventModal({ open, onClose, onSubmit, loading, categories, initialData }) {
   // Khóa scroll khi mở modal
   useEffect(() => {
     if (open) {
@@ -43,6 +43,7 @@ export default function EventModal({ open, onClose, onSubmit, loading, initialDa
             <EventForm
               onSubmit={onSubmit}
               loading={loading}
+              categories={categories}
               initialData={initialData}
             />
           </div>

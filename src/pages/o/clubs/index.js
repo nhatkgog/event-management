@@ -5,9 +5,49 @@ import { clubs } from "@/lib/data"
 import ClubCardAdmin from "@/components/Admin/ClubCardAdmin"
 import ClubModal from "@/components/ClubModal"
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import {getAuth} from "@clerk/nextjs/server";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
+import {forRoleOnly} from "@/lib/auth-utils";
 
-export default function ClubsPage() {
-  const [clubList, setClubList] = useState(clubs)
+export const getServerSideProps = forRoleOnly("admin", async ({ req }) => {
+    try {
+        // Fetch all data in parallel for efficiency
+        const [clubsRes, categoriesRes] = await Promise.all([
+            fetchWithInternalAccess(`/api/club/clubApi`),
+            fetchWithInternalAccess(`/api/category/categoryApi`)
+        ]);
+
+        // The user role fetching can be done here as well if needed, or separately.
+        // For now, we focus on events and categories.
+        const { userId } = getAuth(req);
+        const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+        const role = clerkUserRes.private_metadata?.role ?? null;
+
+        return {
+            props: {
+                initialClubs: clubsRes.data || [],
+                initialCategories: categoriesRes.data || [],
+                role: role,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching data in getServerSideProps:", error);
+        // Return empty arrays as a fallback to prevent the page from crashing.
+        return {
+            props: {
+                initialClubs: [],
+                initialCategories: [],
+                role: null,
+                error: "Could not load data.",
+            },
+        };
+    }
+});
+
+export default function ClubsPage({ initialClubs, initialCategories, role, error }) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
+  const [clubList, setClubList] = useState(initialClubs);
   const [openModal, setOpenModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -49,6 +89,7 @@ export default function ClubsPage() {
   }
 
   return (
+      <SelectedLayout>
     <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
@@ -105,10 +146,11 @@ export default function ClubsPage() {
         loading={loading}
       />
     </div>
+      </SelectedLayout>
   )
 }
 
-ClubsPage.getLayout = function getLayout(page) {
-  const AdminLayout = require("@/components/AdminLayout").default
-  return <AdminLayout>{page}</AdminLayout>
-}
+// ClubsPage.getLayout = function getLayout(page) {
+//   const AdminLayout = require("@/components/AdminLayout").default
+//   return <AdminLayout>{page}</AdminLayout>
+// }
