@@ -1,24 +1,24 @@
-"use client"
-import { useEffect, useState } from "react"
-import HeroSection from "../components/HeroSection"
-import EventGrid from "../components/EventGrid"
-import FeaturedEventCard from "../components/FeaturedEventCard"
-import TestimonialSection from "../components/TestimonialSection"
-import FAQSection from "../components/FAQSection"
-import { events, testimonials } from "@/lib/data"
+"use client";
+import { useEffect, useState } from "react";
+import HeroSection from "../components/HeroSection";
+import EventGrid from "../components/EventGrid";
+import FeaturedEventCard from "../components/FeaturedEventCard";
+import TestimonialSection from "../components/TestimonialSection";
+import FAQSection from "../components/FAQSection";
+import { events, testimonials } from "@/lib/data";
 
 export default function Home() {
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % events.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+      setCurrentIndex((prev) => (prev + 1) % events.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const featuredEvent = events[currentIndex] 
-  const recentEvents = events.slice(0, 4)
+  const featuredEvent = events[currentIndex];
+  const recentEvents = events.slice(0, 4);
 
   const summerEvent = {
     id: "summer",
@@ -26,7 +26,7 @@ export default function Home() {
     description:
       "Những giây phút cùng thăng và hỗi hợp sáng sủa ra tiến đầu trường học thuật, sân chơi nghiên cứu khoa học tầm nhất mành dành cho sinh viên Trường F.",
     date: "26/07/2025",
-  }
+  };
 
   return (
     <div>
@@ -39,7 +39,9 @@ export default function Home() {
       {/* Featured Summer Event */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">CÓ GÌ HOT Ở SỰ KIỆN VỪA QUA?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">
+            CÓ GÌ HOT Ở SỰ KIỆN VỪA QUA?
+          </h2>
           <FeaturedEventCard event={summerEvent} />
 
           {/* Event Categories */}
@@ -70,5 +72,5 @@ export default function Home() {
       <TestimonialSection testimonials={testimonials} />
       <FAQSection />
     </div>
-  )
+  );
 }

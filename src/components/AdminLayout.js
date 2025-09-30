@@ -11,6 +11,7 @@ import {
   ClipboardCheck,
   BarChart3,
   Shield,
+  Bell
 } from "lucide-react"; // icons
 
 export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
@@ -37,6 +38,11 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
       href: "/o/users",
       label: "Quản lý người dùng",
       icon: <Shield className="w-6 h-6" />,
+    },
+    {
+      href: "/o/notifications",
+      label: "Thông báo",
+      icon: <Bell className="w-6 h-6" />,
     },
   ];
 
@@ -80,8 +86,7 @@ export default function AdminLayout({ children, title = "Admin - UniVibe" }) {
             {menuItems.map((item) => {
               const active =
                 router.pathname === item.href ||
-                (item.href !== "/o" &&
-                  router.pathname.startsWith(item.href));
+                (item.href !== "/o" && router.pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
