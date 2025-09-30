@@ -30,13 +30,13 @@ export default function ClubCardAdmin({ club, onDelete }) {
           <span
             className={`${categoryColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
           >
-            {club.categoryId.name}
+            {/* {club.categoryId.name} */}
           </span>
         </div>
 
         {/* ID */}
         <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium">
-          #{club._id.toString().padStart(3, "0")}
+          {/* #{club._id.toString().padStart(3, "0")} */}
         </div>
       </div>
 

@@ -1,90 +1,193 @@
-import Link from 'next/link';
-import AdminLayout from "@/components/AdminLayout";
-import { fetchWithInternalAccess } from "@/utils/internalAccess";
+"use client"
 
-// Step 1: Fetch the specific user's data on the server side using the ID from the URL.
-export async function getServerSideProps(context) {
-  const { id } = context.params; // Get the user ID from the dynamic route
+import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import Link from "next/link"
+import { 
+  ArrowLeft, 
+  Calendar, 
+  CheckCircle, 
+  LogIn, 
+  LogOut, 
+  XCircle, 
+  User 
+} from "lucide-react"
+import Card from "@/components/Card"
 
-  try {
-    const userRes = await fetchWithInternalAccess(`/api/user/userApi?id=${id}`);
-    if (!userRes.success) {
-      throw new Error(userRes.message || `Failed to fetch user with ID: ${id}`);
-    }
-    return {
-      props: {
-        user: userRes.data || null,
-      },
-    };
-  } catch (error) {
-    console.error(`Error fetching user ${id}:`, error);
-    return {
-      props: {
-        user: null,
-        error: "Could not load user data.",
-      },
-    };
-  }
+// 🧪 Mock API để test
+const mockUser = {
+  _id: "1",
+  studentCode: "SV001",
+  fullName: "Nguyễn Văn A",
+  email: "a@example.com",
+  role: { name: "Admin" },
+  avatarUrl: "https://i.pravatar.cc/150?img=3",
+  clubs: [
+    { _id: "c1", name: "CLB Lập Trình" },
+    { _id: "c2", name: "CLB Tiếng Anh" },
+  ],
 }
 
-// A helper component to display a single detail item
-const DetailItem = ({ label, value }) => (
-  <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-    <dt className="text-sm font-medium text-gray-500">{label}</dt>
-    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{value || 'N/A'}</dd>
-  </div>
-);
+const mockRegistrations = [
+  {
+    _id: "r1",
+    event: { _id: "1", title: "Hội thảo AI 2025" },
+    attendedAt: "2025-09-10T08:00:00Z",
+    isCheckedIn: true,
+    isCheckedOut: true,
+  },
+  {
+    _id: "r2",
+    event: { _id: "2", title: "Hackathon Sinh viên" },
+    attendedAt: null,
+    isCheckedIn: false,
+    isCheckedOut: false,
+  },
+]
 
-// Step 2: Create the component to display the user's details.
-export default function UserDetailsPage({ user, error }) {
-  if (error || !user) {
+export default function UserDetailPage() {
+  const router = useRouter()
+  const { id } = router.query
+  const [user, setUser] = useState(null)
+  const [registrations, setRegistrations] = useState([])
+
+  useEffect(() => {
+    // ✅ Fetch từ API thật ở đây
+    setUser(mockUser)
+    setRegistrations(mockRegistrations)
+  }, [id])
+
+  if (!user) {
     return (
-      <AdminLayout title="Error">
-        <div className="container mx-auto p-4 text-center">
-          <p className="text-red-500">{error || "User not found."}</p>
-          <Link href="/o/users">
-            <a className="text-red-600 hover:underline mt-4 inline-block">← Back to User List</a>
-          </Link>
-        </div>
-      </AdminLayout>
-    );
+      <div className="container mx-auto px-4 py-10 text-center text-gray-500">
+        Đang tải dữ liệu người dùng...
+      </div>
+    )
   }
 
   return (
-    <AdminLayout title={`User Details: ${user.fullName}`}>
-      <div className="container mx-auto p-4 md:p-8">
-        <div className="mb-6">
-          <Link href="/o/users">
-            <a className="text-sm text-red-600 hover:underline">← Back to User List</a>
+    <section className="min-h-screen bg-gray-50 py-10">
+      <div className="container mx-auto px-4 max-w-6xl space-y-8">
+        {/* Back button */}
+        <div>
+          <Link
+            href="/o/users"
+            className="inline-flex items-center text-red-500 hover:text-red-600 font-medium mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" /> Quay lại danh sách
           </Link>
         </div>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">User Information</h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and application role.</p>
-          </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-            <dl className="sm:divide-y sm:divide-gray-200">
-              <DetailItem label="Full Name" value={user.fullName} />
-              <DetailItem label="Email Address" value={user.email} />
-              <DetailItem label="Student Code" value={user.studentCode} />
-              <DetailItem label="Database ID" value={user._id} />
-              <DetailItem label="Clerk User ID" value={user.clerkUserId} />
-              <DetailItem label="Role" value={user.roleId?.name || 'No Role'} />
-              <DetailItem 
-                label="Status" 
-                value={user.isActive ? (
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 🧍 Cột trái: Thông tin người dùng */}
+          <div className="lg:col-span-1">
+            <Card className="p-6 flex flex-col items-center text-center space-y-4">
+              {/* Avatar */}
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 shadow-md">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                    <User className="w-12 h-12" />
+                  </div>
                 )}
-              />
-              <DetailItem label="Joined At" value={new Date(user.createdAt).toLocaleString()} />
-            </dl>
+              </div>
+
+              {/* Tên */}
+              <h2 className="text-xl font-bold">{user.fullName}</h2>
+
+              {/* Vai trò */}
+              <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                {user.role?.name}
+              </span>
+
+              {/* Thông tin khác */}
+              <div className="text-left w-full space-y-2 mt-4 text-gray-700">
+                <p><strong>MSSV:</strong> {user.studentCode || "—"}</p>
+                <p><strong>Email:</strong> {user.email}</p>
+                <div>
+                  <p className="font-semibold">Câu lạc bộ:</p>
+                  {user.clubs && user.clubs.length > 0 ? (
+                    <ul className="list-disc list-inside ml-1 text-gray-600">
+                      {user.clubs.map((club) => (
+                        <li key={club._id}>{club.name}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500 italic">Chưa tham gia CLB nào</p>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* 📅 Cột phải: Sự kiện đã đăng ký */}
+          <div className="lg:col-span-2">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <Calendar className="w-6 h-6 text-red-500" /> Sự kiện đã đăng ký
+              </h2>
+
+              {registrations.length === 0 ? (
+                <p className="text-gray-500 italic">Chưa có sự kiện nào</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+                      <tr>
+                        <th className="px-4 py-3 text-left">Tên sự kiện</th>
+                        <th className="px-4 py-3 text-left">Ngày tham dự</th>
+                        <th className="px-4 py-3 text-center">Check-in</th>
+                        <th className="px-4 py-3 text-center">Check-out</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {registrations.map((reg) => (
+                        <tr
+                          key={reg._id}
+                          className="border-t hover:bg-gray-50 transition"
+                        >
+                          <td className="px-4 py-3">
+                            <Link
+                              href={`/o/events/${reg.event._id}`}
+                              className="text-blue-500 hover:text-blue-600 font-medium"
+                            >
+                              {reg.event.title}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-3">
+                            {reg.attendedAt
+                              ? new Date(reg.attendedAt).toLocaleString("vi-VN")
+                              : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {reg.isCheckedIn ? (
+                              <CheckCircle className="w-5 h-5 text-green-500 inline" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-gray-400 inline" />
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {reg.isCheckedOut ? (
+                              <CheckCircle className="w-5 h-5 text-green-500 inline" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-gray-400 inline" />
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
           </div>
         </div>
       </div>
-    </AdminLayout>
-  );
+    </section>
+  )
 }
