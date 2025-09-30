@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import HeroSection from "../components/HeroSection"
 import EventGrid from "../components/EventGrid"
@@ -51,6 +52,7 @@ export default function Home({role}) {
                 {/* Danh sách sự kiện */}
                 <EventGrid events={recentEvents} columns={4}/>
 
+
                 {/* Featured Summer Event */}
                 <section className="py-16 bg-gray-50">
                     <div className="container mx-auto px-4">
@@ -82,6 +84,7 @@ export default function Home({role}) {
                         </div>
                     </div>
                 </section>
+
 
                 <TestimonialSection testimonials={testimonials}/>
                 <FAQSection/>
