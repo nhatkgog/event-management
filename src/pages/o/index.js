@@ -12,6 +12,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 
 import {getAuth} from "@clerk/nextjs/server";
 import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
 
 export async function getServerSideProps({ req }) {
 
@@ -22,7 +24,8 @@ export async function getServerSideProps({ req }) {
     return { props: { role } };
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [stats, setStats] = useState(null)
   const [monthlyData, setMonthlyData] = useState([])
 
@@ -49,7 +52,7 @@ export default function AdminDashboard() {
   }, [])
 
   return (
-      // <SelectedLayout title="Admin Dashboard - UniVibe">
+      <SelectedLayout title="Admin Dashboard - UniVibe">
     <div>
       <SignedIn>
         {/* Hero */}
@@ -127,11 +130,11 @@ export default function AdminDashboard() {
         </div>
       </SignedOut>
     </div>
-      // </SelectedLayout>
+       </SelectedLayout>
   )
 }
 
-AdminDashboard.getLayout = function getLayout(page) {
-  const AdminLayout = require('@/components/AdminLayout').default;
-  return <AdminLayout>{page}</AdminLayout>;
-};
+// AdminDashboard.getLayout = function getLayout(page) {
+//   const AdminLayout = require('@/components/AdminLayout').default;
+//   return <AdminLayout>{page}</AdminLayout>;
+// };
