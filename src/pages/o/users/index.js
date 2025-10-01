@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Search, Eye, ChevronLeft, ChevronRight, UserCog } from "lucide-react";
 import Link from "next/link";
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
 
 const roleColors = {
   Admin: "bg-red-100 text-red-700",
@@ -19,7 +23,17 @@ const sampleUsers = Array.from({ length: 27 }, (_, i) => ({
   isActive: i % 2 === 0,
 }));
 
-export default function UserManagementPage() {
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
+
+export default function UserManagementPage({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +64,7 @@ export default function UserManagementPage() {
     setCurrentPage((p) => Math.min(p + 1, totalPages));
 
   return (
+      <SelectedLayout>
     <section className="min-h-screen bg-gray-50 py-10">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -175,5 +190,6 @@ export default function UserManagementPage() {
         )}
       </div>
     </section>
+      </SelectedLayout>
   );
 }

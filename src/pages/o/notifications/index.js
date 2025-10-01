@@ -3,8 +3,22 @@
 import { useState, useMemo } from "react"
 import { Mail, Info, X, Clock, User, Calendar, Search, ArrowDownAZ, ArrowUpAZ } from "lucide-react"
 import { format } from "date-fns"
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
+import AdminLayout from "@/components/AdminLayout";
+import Layout from "@/components/layout/Layout";
 
-export default function NotificationsList() {
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
+
+export default function NotificationsList({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   // 📝 Data mẫu
   const sampleNotifications = [
     {
@@ -97,6 +111,7 @@ export default function NotificationsList() {
   }
 
   return (
+      <SelectedLayout>
     <div className="py-10 px-4 sm:px-6 lg:px-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <h1 className="text-2xl font-bold text-gray-800">📬 Danh sách thông báo</h1>
@@ -257,5 +272,6 @@ export default function NotificationsList() {
         </div>
       )}
     </div>
+      </SelectedLayout>
   )
 }

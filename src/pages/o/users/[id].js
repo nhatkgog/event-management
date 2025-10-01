@@ -13,6 +13,8 @@ import {
   User 
 } from "lucide-react"
 import Card from "@/components/Card"
+import {getAuth} from "@clerk/nextjs/server";
+import {fetchWithInternalAccess} from "@/utils/internalAccess";
 
 // 🧪 Mock API để test
 const mockUser = {
@@ -45,7 +47,17 @@ const mockRegistrations = [
   },
 ]
 
-export default function UserDetailPage() {
+export async function getServerSideProps({ req }) {
+
+    const { userId } = getAuth(req);
+    const res = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
+    const role = res.private_metadata?.role ?? null;
+
+    return { props: { role } };
+}
+
+export default function UserDetailPage({role}) {
+    const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const router = useRouter()
   const { id } = router.query
   const [user, setUser] = useState(null)
@@ -66,6 +78,7 @@ export default function UserDetailPage() {
   }
 
   return (
+      <SelectedLayout>
     <section className="min-h-screen bg-gray-50 py-10">
       <div className="container mx-auto px-4 max-w-6xl space-y-8">
         {/* Back button */}
@@ -189,5 +202,6 @@ export default function UserDetailPage() {
         </div>
       </div>
     </section>
+      </SelectedLayout>
   )
 }
