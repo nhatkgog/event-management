@@ -56,11 +56,10 @@ export default function ClubsPage({ initialClubs, initialCategories, role, error
     try {
       setLoading(true)
 
-      const response = await fetchWithInternalAccess("/api/club/clubApi", "POST", formData);
+      const newClub = await fetchWithInternalAccess("/api/club/clubApi", "POST", formData);
 
-      if (!response.ok) throw new Error("Tạo CLB thất bại")
+      if (newClub.success === false) throw new Error("Tạo CLB thất bại")
 
-      const newClub = await response.json()
       setClubList((prev) => [...prev, newClub])
 
       alert("🎉 Tạo CLB thành công!")
@@ -76,11 +75,11 @@ export default function ClubsPage({ initialClubs, initialCategories, role, error
   // ❌ Xóa CLB
   const handleDeleteClub = async (id) => {
     try {
-      const response = await fetch(`/api/club/clubApi?id=${id}`, "DELETE");
+      const response = await fetchWithInternalAccess(`/api/club/clubApi?id=${id}`, "DELETE");
 
-      if (!response.ok) throw new Error("Xóa CLB thất bại")
+      if (response.success === false) throw new Error("Xóa CLB thất bại")
 
-      setClubList((prev) => prev.filter((club) => club.id !== id))
+      setClubList((prev) => prev.filter((club) => club._id !== id))
       alert("🗑️ Đã xóa CLB!")
     } catch (error) {
       console.error(error)
@@ -143,6 +142,7 @@ export default function ClubsPage({ initialClubs, initialCategories, role, error
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateClub}
+        categories={initialCategories}
         loading={loading}
       />
     </div>

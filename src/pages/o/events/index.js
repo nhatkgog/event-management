@@ -23,11 +23,16 @@ export const getServerSideProps = forRoleOnly(["organizer", "admin"], async ({ r
         const clerkUserRes = await fetchWithInternalAccess(`/api/clerk?userId=${userId}`);
         const role = clerkUserRes.private_metadata?.role ?? null;
 
+        const userRes = await fetchWithInternalAccess('/api/user/userApi?clerkUserId=' + userId, 'GET');
+
+        const user = userRes ? userRes.data : null;
+
         return {
             props: {
                 initialEvents: eventRes.data || [],
                 initialCategories: categoriesRes.data || [],
                 role: role,
+                user: user
             },
         };
     } catch (error) {
@@ -38,13 +43,14 @@ export const getServerSideProps = forRoleOnly(["organizer", "admin"], async ({ r
                 initialEvents: [],
                 initialCategories: [],
                 role: null,
+                user: null,
                 error: "Could not load data.",
             },
         };
     }
 });
 
-export default function EventsPage({ initialEvents, initialCategories, role, error }) {
+export default function EventsPage({ initialEvents, initialCategories, role, error, user }) {
     const SelectedLayout = role === "admin" ? AdminLayout : Layout;
   const [eventList, setEventList] = useState(initialEvents);
   const [openModal, setOpenModal] = useState(false);
@@ -53,6 +59,9 @@ export default function EventsPage({ initialEvents, initialCategories, role, err
   const handleCreateEvent = async (formData) => {
     try {
       setLoading(true);
+
+      // formData.set("organizerId", user._id);
+      // formData.set("clubId", );
 
       const newEvent = await fetchWithInternalAccess("/api/event/eventApi", 'POST', formData);
 
@@ -76,7 +85,7 @@ export default function EventsPage({ initialEvents, initialCategories, role, err
     try {
       const response = await fetchWithInternalAccess(`/api/event/eventApi?id=${id}`, 'DELETE');
 
-      if (!response.ok) throw new Error("Xóa sự kiện thất bại");
+      if (response.success === false) throw new Error("Xóa sự kiện thất bại");
 
       setEventList((prev) => prev.filter((ev) => ev.id !== id));
 
